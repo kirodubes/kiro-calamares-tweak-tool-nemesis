@@ -41,6 +41,7 @@ class Backend(QObject):
         self._bootloader = "systemd-boot"
         self._encryption = False
         self._filesystem = "ext4"
+        self._force_luks2 = False
         self._status = ""
         self._save_tick = 0
         self.reload()
@@ -57,6 +58,10 @@ class Backend(QObject):
     @Property(bool, constant=True)
     def writable(self):
         return self._cfg.writable()
+
+    @Property(bool, notify=stateChanged)
+    def forceLuks2(self):
+        return self._force_luks2
 
     @Property("QStringList", constant=True)
     def bootloaders(self):
@@ -80,7 +85,7 @@ class Backend(QObject):
 
     @Property(str, notify=stateChanged)
     def luksGeneration(self):
-        return self._cfg.derived_luks(self._bootloader)
+        return self._cfg.derived_luks(self._bootloader, self._force_luks2)
 
     @Property(str, notify=statusChanged)
     def status(self):
@@ -125,11 +130,17 @@ class Backend(QObject):
             self._filesystem = value
             self.stateChanged.emit()
 
+    @Slot(bool)
+    def setForceLuks2(self, value):
+        if bool(value) != self._force_luks2:
+            self._force_luks2 = bool(value)
+            self.stateChanged.emit()
+
     @Slot()
     def apply(self):
-        luks = self._cfg.derived_luks(self._bootloader)
+        luks = self._cfg.derived_luks(self._bootloader, self._force_luks2)
         try:
-            self._cfg.apply(self._bootloader, self._encryption, self._filesystem)
+            self._cfg.apply(self._bootloader, self._encryption, self._filesystem, self._force_luks2)
         except PermissionError:
             self._set_status(f"Permission denied — relaunch as root to edit {self._cfg.config_dir}")
             return
@@ -154,13 +165,21 @@ class Backend(QObject):
 
 def main():
     ap = argparse.ArgumentParser(prog="calamares-tweak-tool")
-    ap.add_argument("--config-dir", default=DEFAULT_CONFIG_DIR,
-                    help=f"Calamares config root to edit (default {DEFAULT_CONFIG_DIR})")
-    ap.add_argument("--dev", action="store_true",
-                    help="edit the bundled sample config instead (launches/inspects anywhere)")
+    ap.add_argument("--config-dir", default=None,
+                    help=f"Calamares config root to edit (default {DEFAULT_CONFIG_DIR}, "
+                         "or the bundled sample under --sample)")
+    ap.add_argument("--sample", action="store_true",
+                    help="edit the bundled sample config instead of /etc/calamares "
+                         "(inspect/test the UI off the live ISO, no root needed)")
     args = ap.parse_args()
 
-    config_dir = SAMPLE_CONFIG_DIR if args.dev else Path(args.config_dir)
+    # --config-dir always wins; --sample targets the bundled copy; otherwise the live config.
+    if args.config_dir is not None:
+        config_dir = Path(args.config_dir)
+    elif args.sample:
+        config_dir = SAMPLE_CONFIG_DIR
+    else:
+        config_dir = Path(DEFAULT_CONFIG_DIR)
 
     here = Path(__file__).resolve().parent
 

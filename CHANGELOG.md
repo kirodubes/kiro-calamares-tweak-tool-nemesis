@@ -1,5 +1,52 @@
 # Changelog
 
+## 2026.06.05
+
+### What Changed
+Forked the stable CTT into the **NEMESIS** experimental package
+(`kiro-calamares-tweak-tool-nemesis`, which `replaces`/`conflicts` the stable one) and
+added the one thing the stable tool forbids by design: a **Force LUKS2 on GRUB**
+override, so we can deliberately write the `grub` + `luks2` combo and test whether the
+current GRUB on Arch can actually unlock it. Because the whole package is dev-only, the
+override is always available — no gating flag.
+
+Research that motivated this: **Arch core now ships `grub 2:2.14-1` (updated 2026-01-16),
+and GRUB 2.14 added Argon2i/Argon2id KDF support for LUKS2.** The "LUKS2-on-stock-GRUB →
+unbootable" footgun the stable CTT exists to prevent is, as of Jan 2026, very likely
+*fixed upstream* — this package is the harness to prove that on a real Kiro install before
+the stable tool's invariant is relaxed.
+
+### Technical Details
+- **`confedit.py`** — `derived_luks(bootloader, force_luks2=False)` and
+  `apply(..., force_luks2=False)` gained an optional override; when `force_luks2` is set,
+  `luksGeneration` is written as `luks2` regardless of bootloader. The `LUKS_FOR`
+  invariant is otherwise unchanged — the override is the only way past it.
+- **`main.py`** — `Backend` exposes `forceLuks2` (notify) + `setForceLuks2()` and threads
+  it into `luksGeneration`/`apply()`. Dropped the old `--dev` flag (redundant — the whole
+  app is dev); the config target is now `/etc/calamares` by default, `--sample` for the
+  bundled copy, `--config-dir` to override. `--config-dir`/`--sample`/default precedence
+  fixed so a config path always wins (the stable tool's `--dev` silently ignored
+  `--config-dir`, which would have blocked a real install test).
+- **`Tweaker.qml`** — new red **"NEMESIS · FORCE LUKS2 ON GRUB"** override card with a
+  switch + an inline ⚠ when grub+luks2 is active; the LUKS readout turns red and explains
+  the forced combo instead of the usual green/amber. Window title marked `— NEMESIS`.
+- Verified: ruff clean; headless functional test of `force_luks2` (grub→luks2, normal
+  grub→luks1, systemd-boot→luks2); offscreen QML load smoke test passes.
+
+### How to test (live ISO VM)
+1. Build `kiro-calamares-tweak-tool-nemesis` into `kiro_repo`, bake the `-nemesis` ISO.
+2. In the live session: `sudo -E calamares-tweak-tool` → pick **grub**, encryption **on**,
+   flip **Force LUKS2 on GRUB** → Apply → confirm `partition.conf` shows `luksGeneration:
+   luks2`. Launch installer, do a full encrypted install, reboot.
+3. Verdict = does GRUB show the LUKS unlock prompt and boot. If yes, GRUB 2.14 Argon2id is
+   confirmed and the stable CTT's grub→luks1 invariant can be revisited.
+
+### Files Modified
+- `usr/share/calamares-tweak-tool/confedit.py`
+- `usr/share/calamares-tweak-tool/main.py`
+- `usr/share/calamares-tweak-tool/Tweaker.qml`
+- `CHANGELOG.md`, `CLAUDE.md`
+
 ## 2026.06.04
 
 ### What Changed

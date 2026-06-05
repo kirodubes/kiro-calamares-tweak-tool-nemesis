@@ -7,7 +7,7 @@ import QtQuick.Layouts
 Window {
     id: win
     visible: true
-    title: "Calamares Tweak Tool"
+    title: "Calamares Tweak Tool — NEMESIS"
     width: 720
     height: 700
     color: win.t.bgBottom
@@ -55,6 +55,7 @@ Window {
     readonly property color warn: appSettings.mode === "dark" ? "#F59E0B" : "#B45309"
     readonly property color danger: appSettings.mode === "dark" ? "#F87171" : "#DC2626"
     readonly property bool isLuks2: backend.luksGeneration === "luks2"
+    readonly property bool forcedGrubLuks2: backend.forceLuks2 && backend.bootloader === "grub"
     readonly property bool savedNow: backend.status.indexOf("Saved:") === 0
 
     // Translucent tint of a colour over the card — works on light and dark.
@@ -162,7 +163,7 @@ Window {
                 implicitHeight: 44
                 Text {
                     anchors.centerIn: parent
-                    text: "No Calamares config found at " + backend.configDir + "  —  try --dev for the bundled sample"
+                    text: "No Calamares config found at " + backend.configDir + "  —  try --sample for the bundled sample"
                     color: win.danger; font.pixelSize: 13
                 }
             }
@@ -246,12 +247,46 @@ Window {
                 }
             }
 
+            // ── NEMESIS override: force LUKS2 on GRUB (test the footgun) ──
+            Rectangle {
+                Layout.fillWidth: true
+                radius: 14; border.width: 2
+                color: win.tint(win.danger, 0.12); border.color: win.danger
+                implicitHeight: fl2Col.implicitHeight + 28
+                enabled: backend.configExists
+                ColumnLayout {
+                    id: fl2Col
+                    anchors { left: parent.left; right: parent.right; top: parent.top; margins: 16 }
+                    spacing: 8
+                    RowLayout {
+                        Layout.fillWidth: true
+                        ColumnLayout {
+                            spacing: 1
+                            Text { text: "NEMESIS · FORCE LUKS2 ON GRUB"; color: win.danger; font.pixelSize: 12; font.bold: true; font.letterSpacing: 1.2 }
+                            Text { text: "writes luks2 regardless of bootloader — may produce an unbootable system"; color: win.t.subtext; font.pixelSize: 12 }
+                        }
+                        Item { Layout.fillWidth: true }
+                        Switch {
+                            checked: backend.forceLuks2
+                            onToggled: backend.setForceLuks2(checked)
+                        }
+                    }
+                    Text {
+                        Layout.fillWidth: true
+                        visible: backend.forceLuks2 && backend.bootloader === "grub"
+                        wrapMode: Text.WordWrap
+                        color: win.danger; font.pixelSize: 13; font.bold: true
+                        text: "⚠  Override active: GRUB + LUKS2. Only proceed to test whether this GRUB can actually unlock it — reboot is the real verdict."
+                    }
+                }
+            }
+
             // ── Derived LUKS readout (the guard, made visible) ──────────
             Rectangle {
                 Layout.fillWidth: true
                 radius: 14; border.width: 1
-                color: win.tint(win.isLuks2 ? win.t.accentB : win.warn, 0.13)
-                border.color: win.isLuks2 ? win.t.accentB : win.warn
+                color: win.tint(win.forcedGrubLuks2 ? win.danger : (win.isLuks2 ? win.t.accentB : win.warn), 0.13)
+                border.color: win.forcedGrubLuks2 ? win.danger : (win.isLuks2 ? win.t.accentB : win.warn)
                 implicitHeight: 70
                 opacity: backend.encryption ? 1.0 : 0.5
                 RowLayout {
@@ -259,16 +294,18 @@ Window {
                     spacing: 14
                     Text {
                         text: backend.luksGeneration.toUpperCase()
-                        color: win.isLuks2 ? win.t.accentB : win.warn
+                        color: win.forcedGrubLuks2 ? win.danger : (win.isLuks2 ? win.t.accentB : win.warn)
                         font.pixelSize: 24; font.bold: true
                     }
                     Text {
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                         color: win.t.desc; font.pixelSize: 13
-                        text: win.isLuks2
-                              ? "systemd-boot decrypts via the initramfs → LUKS2/Argon2id is safe and stronger."
-                              : "GRUB can't unlock LUKS2/Argon2id → forced to LUKS1 so the system still boots."
+                        text: win.forcedGrubLuks2
+                              ? "FORCED: GRUB + LUKS2 — the combo this tool normally forbids. Stock GRUB can't unlock LUKS2/Argon2id; this is the test of whether that still holds."
+                              : (win.isLuks2
+                                 ? "systemd-boot decrypts via the initramfs → LUKS2/Argon2id is safe and stronger."
+                                 : "GRUB can't unlock LUKS2/Argon2id → forced to LUKS1 so the system still boots.")
                     }
                 }
             }

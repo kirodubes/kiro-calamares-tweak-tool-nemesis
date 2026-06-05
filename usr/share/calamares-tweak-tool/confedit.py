@@ -8,6 +8,10 @@ from pathlib import Path
 # The v1 invariant: the LUKS generation is a function of the bootloader, never a free
 # choice. GRUB on stock Arch can't decrypt LUKS2+Argon2id → luks1. systemd-boot loads
 # from the unencrypted ESP and the initramfs decrypts root → luks2 (Argon2id, stronger).
+#
+# NEMESIS exception: this experimental build adds a `force_luks2` override so an expert
+# can deliberately write the grub+luks2 combo and test whether stock GRUB can actually
+# unlock it. That footgun stays impossible by construction in the stable tool.
 LUKS_FOR = {"grub": "luks1", "systemd-boot": "luks2"}
 
 BOOTLOADERS = ("systemd-boot", "grub")
@@ -48,7 +52,9 @@ class CalamaresConfig:
         )
 
     @staticmethod
-    def derived_luks(bootloader):
+    def derived_luks(bootloader, force_luks2=False):
+        if force_luks2:
+            return "luks2"
         return LUKS_FOR.get(bootloader, "luks1")
 
     def read(self):
@@ -63,9 +69,10 @@ class CalamaresConfig:
             "filesystem": _get_scalar(pt, "defaultFileSystemType") or "ext4",
         }
 
-    def apply(self, bootloader, encryption, filesystem):
+    def apply(self, bootloader, encryption, filesystem, force_luks2=False):
         """Write the bootloader, the derived luksGeneration, the encryption switch, and the
-        root defaultFileSystemType (the only filesystem key the simplified config keeps)."""
+        root defaultFileSystemType (the only filesystem key the simplified config keeps).
+        force_luks2 is the NEMESIS dev override that writes luks2 regardless of bootloader."""
         if bootloader not in BOOTLOADERS:
             raise ValueError(f"unknown bootloader: {bootloader}")
         if filesystem not in FILESYSTEMS:
@@ -75,7 +82,7 @@ class CalamaresConfig:
         bt, nb = _set_scalar(bt, "efiBootLoader", f'"{bootloader}"')
 
         pt = self.partition_path.read_text()
-        pt, nl = _set_scalar(pt, "luksGeneration", self.derived_luks(bootloader))
+        pt, nl = _set_scalar(pt, "luksGeneration", self.derived_luks(bootloader, force_luks2))
         pt, ne = _set_scalar(pt, "enableLuksAutomatedPartitioning", "true" if encryption else "false")
         pt, nd = _set_scalar(pt, "defaultFileSystemType", f'"{filesystem}"')
 
