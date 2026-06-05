@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Calamares Tweak Tool
+Comment=Dev/expert: set Calamares encryption + bootloader before installing
+Exec=sudo calamares-tweak-tool
+Icon=calamares
+Terminal=false
+Categories=System;Settings;Utility;
+Keywords=calamares;installer;luks;encryption;bootloader;

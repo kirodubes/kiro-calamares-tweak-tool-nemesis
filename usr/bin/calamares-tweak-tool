@@ -1,0 +1,5 @@
+#!/bin/sh
+# Launch the Calamares Tweak Tool. Dev/expert panel that flips the live ISO's
+# Calamares encryption + bootloader settings before you launch the installer.
+# Pass --dev to edit the bundled sample config (runs anywhere), or --config-dir DIR.
+exec python /usr/share/calamares-tweak-tool/main.py "$@"
