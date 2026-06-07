@@ -1,5 +1,34 @@
 # Changelog
 
+## 2026.06.07
+
+### What Changed
+The NEMESIS experiment is concluded: **GRUB 2.14 unlocks LUKS2/Argon2id on real
+hardware**, so the fork now sets **luks2 for both bootloaders** and drops every luks1-era
+claim. Removed the "Force LUKS2 on GRUB" override (its whole reason — testing the
+grub+luks2 combo — is answered), purged the false "GRUB can't unlock LUKS2 / may produce
+an unbootable system / forced to LUKS1" text, and made the window taller so the Apply row
+is no longer clipped.
+
+### Technical Details
+- **`confedit.py`** — `LUKS_FOR = {"grub": "luks2", "systemd-boot": "luks2"}`;
+  `derived_luks(bootloader)` drops the `force_luks2` param and the luks1 fallback;
+  `apply()` drops `force_luks2`; `read()` luksGeneration fallback `luks1 → luks2`;
+  header comment rewritten (no invariant/footgun narrative).
+- **`main.py`** — removed `_force_luks2`, the `forceLuks2` Property and `setForceLuks2`
+  slot; `luksGeneration`/`apply` no longer pass the override; module docstring rewritten.
+- **`Tweaker.qml`** — window `height 700 → 820`; deleted the red NEMESIS override card and
+  the `forcedGrubLuks2`/`isLuks2` helper properties; the LUKS readout is now a single
+  truthful luks2 card: "Both GRUB (2.14+) and systemd-boot unlock LUKS2/Argon2id at boot."
+- **`sample/.../partition.conf`** — `luksGeneration: luks1 → luks2`.
+
+### Files Modified
+- `usr/share/calamares-tweak-tool/confedit.py`
+- `usr/share/calamares-tweak-tool/main.py`
+- `usr/share/calamares-tweak-tool/Tweaker.qml`
+- `usr/share/calamares-tweak-tool/sample/etc/calamares/modules/partition.conf`
+- `CLAUDE.md`, `CHANGELOG.md`
+
 ## 2026.06.05
 
 ### What Changed

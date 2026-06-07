@@ -15,16 +15,12 @@ Installer-side sibling of ATT. Design summary: `~/calamares-tweak-tool.md`.
 
 ## Conventions
 - Python: ruff clean, max line 120.
-- **The v1 invariant** is `LUKS_FOR` in `confedit.py` — LUKS generation is normally a
-  function of the bootloader, never a free choice.
-- **NEMESIS deviation (intentional):** this experimental fork keeps a single sanctioned
-  escape hatch — the `force_luks2` override (`forceLuks2`/`setForceLuks2`, the red "Force
-  LUKS2 on GRUB" card) — to deliberately write the `grub`+`luks2` combo and test whether
-  current GRUB can unlock it. Do NOT "fix" this back to the stable invariant. Motivation:
-  Arch ships `grub 2:2.14-1` (2026-01-16) and GRUB 2.14 added Argon2id KDF support, so the
-  unbootable-combo premise may no longer hold. Still don't add a *free* LUKS picker — the
-  override is the one allowed deviation. The stable `kiro-calamares-tweak-tool` keeps the
-  invariant absolute.
+- **LUKS generation is `luks2` for both bootloaders** (`LUKS_FOR` in `confedit.py`). The
+  NEMESIS experiment that motivated this fork is concluded: GRUB 2.14 (Arch `grub
+  2:2.14-1`, 2026-01-16) unlocks LUKS2/Argon2id, proven on real BIOS + UEFI installs, so
+  the old grub→luks1 premise is dead. The `force_luks2` override / "Force LUKS2 on GRUB"
+  card was removed once that was proven — don't reintroduce it, and don't reintroduce any
+  luks1 path or a free LUKS picker.
 - Never YAML-round-trip the conf files — they're heavily commented. Use `_set_scalar`.
 - Brand colors: blue `#0195F7`, green `#2FC328`; dark bg `#0F172A`/`#020617`.
 

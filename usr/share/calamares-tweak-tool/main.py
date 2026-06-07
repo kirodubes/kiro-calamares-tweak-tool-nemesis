@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 """Calamares Tweak Tool — a dev/expert PySide6 panel that flips the live ISO's
-Calamares encryption + bootloader settings before you launch the installer. v1 pairs
-the bootloader with the only safe LUKS generation, so an unbootable combo (luks2 on
-stock GRUB) is impossible by construction."""
+Calamares encryption + bootloader settings before you launch the installer. Encryption
+uses LUKS2/Argon2id, which both GRUB (2.14+) and systemd-boot unlock at boot."""
 import argparse
 import os
 import shutil
@@ -41,7 +40,6 @@ class Backend(QObject):
         self._bootloader = "systemd-boot"
         self._encryption = False
         self._filesystem = "ext4"
-        self._force_luks2 = False
         self._status = ""
         self._save_tick = 0
         self.reload()
@@ -58,10 +56,6 @@ class Backend(QObject):
     @Property(bool, constant=True)
     def writable(self):
         return self._cfg.writable()
-
-    @Property(bool, notify=stateChanged)
-    def forceLuks2(self):
-        return self._force_luks2
 
     @Property("QStringList", constant=True)
     def bootloaders(self):
@@ -85,7 +79,7 @@ class Backend(QObject):
 
     @Property(str, notify=stateChanged)
     def luksGeneration(self):
-        return self._cfg.derived_luks(self._bootloader, self._force_luks2)
+        return self._cfg.derived_luks(self._bootloader)
 
     @Property(str, notify=statusChanged)
     def status(self):
@@ -130,17 +124,11 @@ class Backend(QObject):
             self._filesystem = value
             self.stateChanged.emit()
 
-    @Slot(bool)
-    def setForceLuks2(self, value):
-        if bool(value) != self._force_luks2:
-            self._force_luks2 = bool(value)
-            self.stateChanged.emit()
-
     @Slot()
     def apply(self):
-        luks = self._cfg.derived_luks(self._bootloader, self._force_luks2)
+        luks = self._cfg.derived_luks(self._bootloader)
         try:
-            self._cfg.apply(self._bootloader, self._encryption, self._filesystem, self._force_luks2)
+            self._cfg.apply(self._bootloader, self._encryption, self._filesystem)
         except PermissionError:
             self._set_status(f"Permission denied — relaunch as root to edit {self._cfg.config_dir}")
             return

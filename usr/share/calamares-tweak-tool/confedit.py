@@ -5,14 +5,9 @@ import os
 import re
 from pathlib import Path
 
-# The v1 invariant: the LUKS generation is a function of the bootloader, never a free
-# choice. GRUB on stock Arch can't decrypt LUKS2+Argon2id → luks1. systemd-boot loads
-# from the unencrypted ESP and the initramfs decrypts root → luks2 (Argon2id, stronger).
-#
-# NEMESIS exception: this experimental build adds a `force_luks2` override so an expert
-# can deliberately write the grub+luks2 combo and test whether stock GRUB can actually
-# unlock it. That footgun stays impossible by construction in the stable tool.
-LUKS_FOR = {"grub": "luks1", "systemd-boot": "luks2"}
+# LUKS generation is luks2 for both bootloaders: GRUB 2.14+ and systemd-boot both unlock
+# LUKS2/Argon2id at boot (proven on real BIOS + UEFI installs). Argon2id is the stronger KDF.
+LUKS_FOR = {"grub": "luks2", "systemd-boot": "luks2"}
 
 BOOTLOADERS = ("systemd-boot", "grub")
 
@@ -52,10 +47,8 @@ class CalamaresConfig:
         )
 
     @staticmethod
-    def derived_luks(bootloader, force_luks2=False):
-        if force_luks2:
-            return "luks2"
-        return LUKS_FOR.get(bootloader, "luks1")
+    def derived_luks(bootloader):
+        return LUKS_FOR.get(bootloader, "luks2")
 
     def read(self):
         """Current state as {bootloader, luksGeneration, encryption, filesystem}."""
@@ -64,15 +57,14 @@ class CalamaresConfig:
         bootloader = _get_scalar(bt, "efiBootLoader") or "systemd-boot"
         return {
             "bootloader": bootloader,
-            "luksGeneration": _get_scalar(pt, "luksGeneration") or "luks1",
+            "luksGeneration": _get_scalar(pt, "luksGeneration") or "luks2",
             "encryption": (_get_scalar(pt, "enableLuksAutomatedPartitioning") or "false").lower() == "true",
             "filesystem": _get_scalar(pt, "defaultFileSystemType") or "ext4",
         }
 
-    def apply(self, bootloader, encryption, filesystem, force_luks2=False):
+    def apply(self, bootloader, encryption, filesystem):
         """Write the bootloader, the derived luksGeneration, the encryption switch, and the
-        root defaultFileSystemType (the only filesystem key the simplified config keeps).
-        force_luks2 is the NEMESIS dev override that writes luks2 regardless of bootloader."""
+        root defaultFileSystemType (the only filesystem key the simplified config keeps)."""
         if bootloader not in BOOTLOADERS:
             raise ValueError(f"unknown bootloader: {bootloader}")
         if filesystem not in FILESYSTEMS:
@@ -82,7 +74,7 @@ class CalamaresConfig:
         bt, nb = _set_scalar(bt, "efiBootLoader", f'"{bootloader}"')
 
         pt = self.partition_path.read_text()
-        pt, nl = _set_scalar(pt, "luksGeneration", self.derived_luks(bootloader, force_luks2))
+        pt, nl = _set_scalar(pt, "luksGeneration", self.derived_luks(bootloader))
         pt, ne = _set_scalar(pt, "enableLuksAutomatedPartitioning", "true" if encryption else "false")
         pt, nd = _set_scalar(pt, "defaultFileSystemType", f'"{filesystem}"')
 
