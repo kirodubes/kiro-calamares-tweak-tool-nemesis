@@ -17,7 +17,8 @@ is no longer clipped.
   header comment rewritten (no invariant/footgun narrative).
 - **`main.py`** — removed `_force_luks2`, the `forceLuks2` Property and `setForceLuks2`
   slot; `luksGeneration`/`apply` no longer pass the override; module docstring rewritten.
-- **`Tweaker.qml`** — window `height 700 → 820`; deleted the red NEMESIS override card and
+- **`Tweaker.qml`** — window `height 700 → 670` (trimmed once the override card was gone);
+  deleted the red NEMESIS override card and
   the `forcedGrubLuks2`/`isLuks2` helper properties; the LUKS readout is now a single
   truthful luks2 card: "Both GRUB (2.14+) and systemd-boot unlock LUKS2/Argon2id at boot."
 - **`sample/.../partition.conf`** — `luksGeneration: luks1 → luks2`.

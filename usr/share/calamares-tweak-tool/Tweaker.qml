@@ -9,7 +9,7 @@ Window {
     visible: true
     title: "Calamares Tweak Tool — NEMESIS"
     width: 720
-    height: 820
+    height: 670
     color: win.t.bgBottom
 
     // ── Themes (day/night + swatches, ported from kiro-keybindings) ─────
