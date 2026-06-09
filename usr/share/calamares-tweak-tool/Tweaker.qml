@@ -161,7 +161,7 @@ Window {
                 implicitHeight: 44
                 Text {
                     anchors.centerIn: parent
-                    text: "No Calamares config found at " + backend.configDir + "  —  try --sample for the bundled sample"
+                    text: "No Calamares config found at " + backend.configDir
                     color: win.danger; font.pixelSize: 13
                 }
             }

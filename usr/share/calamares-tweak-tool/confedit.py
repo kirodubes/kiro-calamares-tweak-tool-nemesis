@@ -37,7 +37,7 @@ class CalamaresConfig:
         self.config_dir = Path(config_dir)
         self.partition_path = self.config_dir / "modules" / "partition.conf"
         # The bootloader module is the custom "kiro_bootloader" now; fall back to the stock
-        # "bootloader" name (e.g. the bundled --sample) so the tool reads either layout.
+        # "bootloader" name so the tool still reads an older config layout.
         modules = self.config_dir / "modules"
         self.bootloader_path = next(
             (modules / n for n in ("kiro_bootloader.conf", "bootloader.conf") if (modules / n).is_file()),

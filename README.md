@@ -34,7 +34,6 @@ Edits are comment-preserving single-line replacements — the heavily-commented 
 ```bash
 calamares-tweak-tool                 # edit the real /etc/calamares (needs root to save)
 sudo -E calamares-tweak-tool         # … with write access on the live ISO
-calamares-tweak-tool --dev           # edit the bundled sample config (runs anywhere)
 calamares-tweak-tool --config-dir /path/to/etc/calamares
 ```
 

@@ -25,9 +25,21 @@ hardcoded `modules/bootloader.conf`, so on the live ISO `exists()` returned fals
 itself still launched fine). Now resolved.
 
 **Technical Details** — `confedit.py` resolves `bootloader_path` by preferring
-`kiro_bootloader.conf` and falling back to `bootloader.conf` (the bundled `--sample` still uses
-the stock name), so it reads either layout. The `efiBootLoader` key is unchanged, so `read()` /
-`apply()` work as-is. Verified `exists()` → true and `read()` against the live `kiro-calamares-config`.
+`kiro_bootloader.conf` and falling back to `bootloader.conf`, so it reads either layout. The
+`efiBootLoader` key is unchanged, so `read()` / `apply()` work as-is. Verified `exists()` → true
+and `read()` against the live `kiro-calamares-config`.
+
+### Also — removed the unused `--sample` feature
+
+**What Changed** — Deleted the bundled `sample/etc/calamares/` config tree, the `--sample` CLI
+flag and `SAMPLE_CONFIG_DIR` (`main.py`), and the "try --sample for the bundled sample" hint on
+the no-config banner (`Tweaker.qml`).
+
+**Why** — `--sample` let the tool edit a bundled dummy config off a live ISO; it was never used
+and the bundled copy silently drifted from the real config (it still carried the pre-rename
+`bootloader.conf`, which is what masked the `kiro_bootloader` break). Removing it deletes the
+maintenance trap; the tool now only ever edits the live `/etc/calamares` (or an explicit
+`--config-dir`).
 
 ## 2026.06.07
 

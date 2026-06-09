@@ -10,7 +10,6 @@ Installer-side sibling of ATT. Design summary: `~/calamares-tweak-tool.md`.
 - `usr/share/calamares-tweak-tool/confedit.py` — `CalamaresConfig`: read/write the conf
   files with comment-preserving line edits. Pure, no Qt — unit-testable.
 - `usr/share/calamares-tweak-tool/Tweaker.qml` — the UI.
-- `usr/share/calamares-tweak-tool/sample/` — bundled sample `/etc/calamares` for `--dev`.
 - `usr/share/applications/*.desktop` — visible menu entry (Categories System;Settings;Utility).
 
 ## Conventions

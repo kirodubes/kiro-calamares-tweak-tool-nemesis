@@ -15,7 +15,6 @@ from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtQml import QQmlApplicationEngine
 
 DEFAULT_CONFIG_DIR = "/etc/calamares"
-SAMPLE_CONFIG_DIR = Path(__file__).resolve().parent / "sample" / "etc" / "calamares"
 # Mirror the Kiro live launcher exactly (cal-kiro.desktop): the calamares_polkit
 # wrapper runs `pkexec --disable-internal-agent /usr/bin/calamares`, and -d -style
 # kvantum give the debug session.log + the KiroDark theme.
@@ -154,20 +153,10 @@ class Backend(QObject):
 def main():
     ap = argparse.ArgumentParser(prog="calamares-tweak-tool")
     ap.add_argument("--config-dir", default=None,
-                    help=f"Calamares config root to edit (default {DEFAULT_CONFIG_DIR}, "
-                         "or the bundled sample under --sample)")
-    ap.add_argument("--sample", action="store_true",
-                    help="edit the bundled sample config instead of /etc/calamares "
-                         "(inspect/test the UI off the live ISO, no root needed)")
+                    help=f"Calamares config root to edit (default {DEFAULT_CONFIG_DIR})")
     args = ap.parse_args()
 
-    # --config-dir always wins; --sample targets the bundled copy; otherwise the live config.
-    if args.config_dir is not None:
-        config_dir = Path(args.config_dir)
-    elif args.sample:
-        config_dir = SAMPLE_CONFIG_DIR
-    else:
-        config_dir = Path(DEFAULT_CONFIG_DIR)
+    config_dir = Path(args.config_dir) if args.config_dir is not None else Path(DEFAULT_CONFIG_DIR)
 
     here = Path(__file__).resolve().parent
 
