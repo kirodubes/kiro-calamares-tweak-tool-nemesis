@@ -36,7 +36,13 @@ class CalamaresConfig:
     def __init__(self, config_dir):
         self.config_dir = Path(config_dir)
         self.partition_path = self.config_dir / "modules" / "partition.conf"
-        self.bootloader_path = self.config_dir / "modules" / "bootloader.conf"
+        # The bootloader module is the custom "kiro_bootloader" now; fall back to the stock
+        # "bootloader" name (e.g. the bundled --sample) so the tool reads either layout.
+        modules = self.config_dir / "modules"
+        self.bootloader_path = next(
+            (modules / n for n in ("kiro_bootloader.conf", "bootloader.conf") if (modules / n).is_file()),
+            modules / "kiro_bootloader.conf",
+        )
 
     def exists(self):
         return self.partition_path.is_file() and self.bootloader_path.is_file()

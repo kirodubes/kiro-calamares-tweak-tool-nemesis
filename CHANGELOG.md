@@ -16,6 +16,19 @@ jfs, btrfs`). f2fs is a valid expert choice: `f2fs-tools` ships on the ISO, moun
 ### Files Modified
 - `usr/share/calamares-tweak-tool/confedit.py`
 
+### Also — follow the renamed bootloader module (`kiro_bootloader`)
+
+**What Changed** — Calamares' bootloader module was renamed from the stock `bootloader` to the
+custom **`kiro_bootloader`**, so its config is now `modules/kiro_bootloader.conf`. The tool still
+hardcoded `modules/bootloader.conf`, so on the live ISO `exists()` returned false → the red
+"No Calamares config found at /etc/calamares" banner and every control greyed out (Calamares
+itself still launched fine). Now resolved.
+
+**Technical Details** — `confedit.py` resolves `bootloader_path` by preferring
+`kiro_bootloader.conf` and falling back to `bootloader.conf` (the bundled `--sample` still uses
+the stock name), so it reads either layout. The `efiBootLoader` key is unchanged, so `read()` /
+`apply()` work as-is. Verified `exists()` → true and `read()` against the live `kiro-calamares-config`.
+
 ## 2026.06.07
 
 ### What Changed
