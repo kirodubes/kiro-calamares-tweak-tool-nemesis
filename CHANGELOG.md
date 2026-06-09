@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026.06.09
+
+### What Changed
+Added **f2fs** to the root-filesystem dropdown, after ext4 (order now `ext4, f2fs, xfs,
+jfs, btrfs`). f2fs is a valid expert choice: `f2fs-tools` ships on the ISO, mount.conf's
+`default` mountOptions entry covers it, and Calamares formats it via `defaultFileSystemType`.
+
+### Technical Details
+- **`confedit.py`** — `FILESYSTEMS = ("ext4", "f2fs", "xfs", "jfs", "btrfs")`; header
+  comment updated (now "five mkfs tools on the ISO"). No QML/main.py change needed — the
+  dropdown binds to `backend.filesystems`, which returns the tuple. Verified f2fs
+  round-trips through `apply()`/`read()` against the sample config.
+
+### Files Modified
+- `usr/share/calamares-tweak-tool/confedit.py`
+
 ## 2026.06.07
 
 ### What Changed

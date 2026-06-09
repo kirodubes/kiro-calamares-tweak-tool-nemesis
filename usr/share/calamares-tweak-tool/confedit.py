@@ -12,9 +12,9 @@ LUKS_FOR = {"grub": "luks2", "systemd-boot": "luks2"}
 BOOTLOADERS = ("systemd-boot", "grub")
 
 # Root filesystem choices. btrfs is fully wired in mount.conf (subvolume layout +
-# zstd); ext4/xfs/jfs use the `default` mountOptions entry; all four mkfs tools are on
-# the ISO. jfs is legacy/niche, but this is an expert tool — the choice is the user's.
-FILESYSTEMS = ("ext4", "xfs", "jfs", "btrfs")
+# zstd); ext4/f2fs/xfs/jfs use the `default` mountOptions entry; all five mkfs tools are
+# on the ISO. jfs is legacy/niche, but this is an expert tool — the choice is the user's.
+FILESYSTEMS = ("ext4", "f2fs", "xfs", "jfs", "btrfs")
 
 
 def _get_scalar(text, key):
