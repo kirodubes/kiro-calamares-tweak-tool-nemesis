@@ -7,9 +7,9 @@ import QtQuick.Layouts
 Window {
     id: win
     visible: true
-    title: "Calamares Tweak Tool — NEMESIS"
-    width: 720
-    height: 670
+    title: "Calamares Tweak Tool"
+    width: 780
+    height: 740
     color: win.t.bgBottom
 
     // ── Themes (day/night + swatches, ported from kiro-keybindings) ─────
