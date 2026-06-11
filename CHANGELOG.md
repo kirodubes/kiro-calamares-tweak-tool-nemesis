@@ -35,6 +35,20 @@ through explicitly.
 - `usr/share/applications/calamares-tweak-tool.desktop`
 - `usr/bin/calamares-tweak-tool`
 
+### Also — readable filesystem dropdown (dark-themed ComboBox)
+
+**What Changed** — the FILESYSTEM dropdown rendered as the default light Qt widget (white
+field, near-white text = unreadable, and a light popup floating over the bootloader card).
+Fully themed it to the app palette so the field, indicator, popup and item delegates match
+whatever dark/light theme is active.
+
+**Technical Details** — `Tweaker.qml` `fsCombo`: added a `background` (`win.t.bgBottom` +
+`cardBorder`, accent border when open), a palette `indicator`, a styled `ItemDelegate`
+(accent highlight, white text on highlight, `win.t.desc` otherwise) and a dark `popup`
+(`cardBg` + `cardBorder`). All `win.t.*`-driven, so it stays correct in every theme.
+
+**Files Modified** — `usr/share/calamares-tweak-tool/Tweaker.qml`
+
 ## 2026.06.09
 
 ### What Changed

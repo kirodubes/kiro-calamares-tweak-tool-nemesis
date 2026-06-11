@@ -186,10 +186,56 @@ Window {
                         model: backend.filesystems
                         currentIndex: Math.max(0, backend.filesystems.indexOf(backend.filesystem))
                         onActivated: backend.setFilesystem(currentText)
+
+                        // Fully themed so the field + popup match the dark/light palette;
+                        // the default Controls style renders a light field (white-on-white,
+                        // unreadable) since only the text was styled before.
                         contentItem: Text {
                             text: fsCombo.displayText
                             color: win.t.desc; font.pixelSize: 15
-                            leftPadding: 12; verticalAlignment: Text.AlignVCenter
+                            leftPadding: 12; rightPadding: 28
+                            verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight
+                        }
+                        indicator: Text {
+                            text: "▾"; color: win.t.subtext; font.pixelSize: 14
+                            x: fsCombo.width - width - 12
+                            y: (fsCombo.height - height) / 2
+                        }
+                        background: Rectangle {
+                            implicitHeight: 38; radius: 8
+                            color: win.t.bgBottom
+                            border.width: 1
+                            border.color: fsCombo.popup.visible ? win.t.accentA : win.t.cardBorder
+                        }
+                        delegate: ItemDelegate {
+                            id: fsDelegate
+                            width: fsCombo.width
+                            highlighted: fsCombo.highlightedIndex === index
+                            contentItem: Text {
+                                text: modelData
+                                color: fsDelegate.highlighted ? "#ffffff" : win.t.desc
+                                font.pixelSize: 15; leftPadding: 10
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                            background: Rectangle {
+                                color: fsDelegate.highlighted ? win.t.accentA : "transparent"
+                            }
+                        }
+                        popup: Popup {
+                            y: fsCombo.height + 2
+                            width: fsCombo.width
+                            implicitHeight: Math.min(contentItem.implicitHeight, 280)
+                            padding: 1
+                            contentItem: ListView {
+                                clip: true
+                                implicitHeight: contentHeight
+                                model: fsCombo.popup.visible ? fsCombo.delegateModel : null
+                                currentIndex: fsCombo.highlightedIndex
+                            }
+                            background: Rectangle {
+                                radius: 8; color: win.t.cardBg
+                                border.color: win.t.cardBorder; border.width: 1
+                            }
                         }
                     }
                 }
