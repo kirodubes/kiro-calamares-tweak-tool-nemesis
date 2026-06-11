@@ -1,5 +1,40 @@
 # Changelog
 
+## 2026.06.11
+
+### What Changed
+Fixed **Calamares Tweak Tool not launching from the desktop menu** (found on the live
+Budgie/Wayland ISO). The `.desktop` ran `Exec=sudo calamares-tweak-tool` with
+`Terminal=false`. Bare `sudo` from a menu launch fails two ways: on a normal install it
+has no TTY/askpass for the password prompt (so it only worked off a cached sudo ticket —
+run once in a terminal, menu works until the ticket expires, then breaks again); and on
+the live ISO, where `liveuser` has passwordless sudo, `sudo`'s `env_reset` strips
+`DISPLAY`/`WAYLAND_DISPLAY`/`XAUTHORITY`, so the Qt app can't reach the display.
+`/etc/calamares` is `root:root`, so escalation is genuinely required (liveuser is uid
+1000, not root). Switched to polkit (`pkexec`) — the mechanism the tool already uses to
+launch Calamares (`calamares_polkit`) and the one ATT uses — passing the display env
+through explicitly.
+
+### Technical Details
+- **`usr/share/applications/calamares-tweak-tool.desktop`** — dropped `sudo`; now
+  `Exec=calamares-tweak-tool`.
+- **`usr/bin/calamares-tweak-tool`** — runs directly if already root (`sudo -E`);
+  otherwise escalates via `pkexec env …`. Two menu-launch bugs, both proven on the live
+  Budgie/Wayland ISO via the real `gtk-launch` path:
+  **(1)** the wrapper must **not** `exec` pkexec — a menu launcher (gtk-launch/budgie)
+  fires and exits immediately, so with `exec` pkexec's parent is already dead and it aborts
+  with *"Refusing to render service to dead parents"*; keeping the shell alive as pkexec's
+  parent fixes it (the reason ATT avoids `exec` too). **(2)** Wayland is detected by
+  `$XDG_SESSION_TYPE` / the `wayland-0` socket, not just `$WAYLAND_DISPLAY` — a menu launch
+  may not propagate that var, dropping the app onto the X11 branch. Wayland branch forces
+  `QT_QPA_PLATFORM=wayland` + `LIBGL_ALWAYS_SOFTWARE=1`, no xcb fallback (as root xcb has no
+  X cookie and coredumps; VM EGL leaves the window unpainted). X11 branch passes only
+  `DISPLAY`/`XAUTHORITY`, default xcb — zero behavioural change on X11.
+
+### Files Modified
+- `usr/share/applications/calamares-tweak-tool.desktop`
+- `usr/bin/calamares-tweak-tool`
+
 ## 2026.06.09
 
 ### What Changed

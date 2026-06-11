@@ -9,25 +9,28 @@ if [ "$(id -u)" = 0 ]; then
     exec python "$APP" "$@"
 fi
 
-# Escalate via polkit so the desktop's polkit agent shows a graphical password
-# dialog (works from the menu with no TTY) and the root app inherits the display.
-# Why not `sudo` in the .desktop: a menu launch has no TTY/askpass, so sudo's
-# prompt has nowhere to appear and the launch dies silently (it only worked off a
-# cached sudo ticket). pkexec is what calamares itself uses here (calamares_polkit).
-if [ -n "$WAYLAND_DISPLAY" ]; then
-    # Wayland session (e.g. Budgie on Wayland): pass the Wayland env through and let
-    # Qt try Wayland, falling back to XWayland (xcb).
-    exec pkexec env \
-        DISPLAY="$DISPLAY" \
-        XAUTHORITY="$XAUTHORITY" \
-        WAYLAND_DISPLAY="$WAYLAND_DISPLAY" \
-        XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" \
-        QT_QPA_PLATFORM="wayland;xcb" \
+# Not root: escalate via polkit (/etc/calamares is root:root, so saving needs root).
+# IMPORTANT — do NOT `exec` pkexec. A menu launch (gtk-launch / budgie) fires the
+# launcher and exits immediately; with `exec`, pkexec's parent is then already dead
+# and it aborts with "Refusing to render service to dead parents". Keeping this shell
+# alive as pkexec's parent satisfies that check. (ATT's wrapper avoids `exec` too.)
+RT="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+
+# Detect Wayland by socket / session type, NOT just $WAYLAND_DISPLAY — a menu launch
+# may not propagate that env var even inside a Wayland session.
+if [ "$XDG_SESSION_TYPE" = "wayland" ] || [ -n "$WAYLAND_DISPLAY" ] || [ -S "$RT/wayland-0" ]; then
+    # Wayland (e.g. Budgie): force Qt's Wayland platform + software GL. No xcb/XWayland
+    # fallback — as root it has no X cookie and coredumps, and VM EGL leaves the window
+    # unpainted. Mirrors archlinux-tweak-tool's proven Wayland recipe.
+    pkexec env \
+        WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-0}" \
+        XDG_RUNTIME_DIR="$RT" \
+        QT_QPA_PLATFORM=wayland \
+        LIBGL_ALWAYS_SOFTWARE=1 \
         python "$APP" "$@"
 else
-    # X11 session: pass only the X display + auth; Qt uses its default xcb backend
-    # exactly as before — no platform forcing, zero behavioural change on X11.
-    exec pkexec env \
+    # X11: pass the X display + auth; Qt's default xcb backend — zero change on X11.
+    pkexec env \
         DISPLAY="$DISPLAY" \
         XAUTHORITY="$XAUTHORITY" \
         python "$APP" "$@"
