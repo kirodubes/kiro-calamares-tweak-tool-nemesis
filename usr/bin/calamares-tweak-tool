@@ -2,4 +2,33 @@
 # Launch the Calamares Tweak Tool. Dev/expert panel that flips the live ISO's
 # Calamares encryption + bootloader settings before you launch the installer.
 # Edits the live /etc/calamares by default; pass --config-dir DIR to point elsewhere.
-exec python /usr/share/calamares-tweak-tool/main.py "$@"
+APP=/usr/share/calamares-tweak-tool/main.py
+
+# Already root (live ISO, or `sudo -E`): run directly, no polkit needed.
+if [ "$(id -u)" = 0 ]; then
+    exec python "$APP" "$@"
+fi
+
+# Escalate via polkit so the desktop's polkit agent shows a graphical password
+# dialog (works from the menu with no TTY) and the root app inherits the display.
+# Why not `sudo` in the .desktop: a menu launch has no TTY/askpass, so sudo's
+# prompt has nowhere to appear and the launch dies silently (it only worked off a
+# cached sudo ticket). pkexec is what calamares itself uses here (calamares_polkit).
+if [ -n "$WAYLAND_DISPLAY" ]; then
+    # Wayland session (e.g. Budgie on Wayland): pass the Wayland env through and let
+    # Qt try Wayland, falling back to XWayland (xcb).
+    exec pkexec env \
+        DISPLAY="$DISPLAY" \
+        XAUTHORITY="$XAUTHORITY" \
+        WAYLAND_DISPLAY="$WAYLAND_DISPLAY" \
+        XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" \
+        QT_QPA_PLATFORM="wayland;xcb" \
+        python "$APP" "$@"
+else
+    # X11 session: pass only the X display + auth; Qt uses its default xcb backend
+    # exactly as before — no platform forcing, zero behavioural change on X11.
+    exec pkexec env \
+        DISPLAY="$DISPLAY" \
+        XAUTHORITY="$XAUTHORITY" \
+        python "$APP" "$@"
+fi
