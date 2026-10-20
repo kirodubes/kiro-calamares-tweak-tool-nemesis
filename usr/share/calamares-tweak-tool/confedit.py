@@ -11,10 +11,10 @@ LUKS_FOR = {"grub": "luks2", "systemd-boot": "luks2"}
 
 BOOTLOADERS = ("systemd-boot", "grub")
 
-# Root filesystem choices. btrfs is fully wired in mount.conf (subvolume layout +
-# zstd); ext4/f2fs/xfs/jfs use the `default` mountOptions entry; all five mkfs tools are
-# on the ISO. jfs is legacy/niche, but this is an expert tool — the choice is the user's.
-FILESYSTEMS = ("ext4", "f2fs", "xfs", "jfs", "btrfs")
+# Root filesystem choices — must match availableFileSystemTypes in kiro-calamares-config's
+# partition.conf. No f2fs: Calamares creates its swap file unpinned there, so swapon stalls
+# ~90 s at every boot. No jfs: never offered by the installer itself.
+FILESYSTEMS = ("ext4", "btrfs", "xfs")
 
 
 def _get_scalar(text, key):
@@ -82,11 +82,11 @@ class CalamaresConfig:
         pt = self.partition_path.read_text()
         pt, nl = _set_scalar(pt, "luksGeneration", self.derived_luks(bootloader))
         pt, ne = _set_scalar(pt, "enableLuksAutomatedPartitioning", "true" if encryption else "false")
-        pt, nd = _set_scalar(pt, "defaultFileSystemType", f'"{filesystem}"')
+        pt, nf = _set_scalar(pt, "defaultFileSystemType", f'"{filesystem}"')
 
         missing = [k for k, n in (("efiBootLoader", nb), ("luksGeneration", nl),
                                   ("enableLuksAutomatedPartitioning", ne),
-                                  ("defaultFileSystemType", nd)) if n == 0]
+                                  ("defaultFileSystemType", nf)) if n == 0]
         if missing:
             raise KeyError(f"settings not found in config: {', '.join(missing)}")
 

@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026.10.20
+
+### What Changed
+- Root-filesystem dropdown trimmed to **ext4, btrfs, xfs**, the installer's own `availableFileSystemTypes`.
+  f2fs was dropped from all Calamares configs on 2026-10-11 (Calamares creates the swap file unpinned on
+  f2fs, so `swapon` stalls ~90 s at every boot). The CTT still offered it, and jfs, so setting the default
+  here could put a removed filesystem back.
+
+### Technical Details
+- `FILESYSTEMS` in `confedit.py` now mirrors `partition.conf`. The UI reads it, and the existing fallback
+  turns an unknown current default into `ext4`. FILESYSTEMS.md gains a 4th inclusion rule
+  ("in `availableFileSystemTypes`") and records why f2fs and jfs were removed.
+
+### Files Modified
+- `usr/share/calamares-tweak-tool/confedit.py`
+- `FILESYSTEMS.md`
+- `CHANGELOG.md`
+
 ## 2026.09.28
 
 ### What Changed

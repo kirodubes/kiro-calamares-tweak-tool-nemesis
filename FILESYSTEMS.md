@@ -4,21 +4,30 @@ Study behind the CTT's root-filesystem picker (`FILESYSTEMS` in `confedit.py`,
 surfaced as the FILESYSTEM dropdown in `Tweaker.qml`). Records what we ship, what we
 considered, and why — so the next person doesn't re-litigate it.
 
-## Decision (2026-06-09)
+## Decision (2026-10-20)
 
-Dropdown order: **`ext4, f2fs, xfs, jfs, btrfs`**.
+Dropdown order: **`ext4, btrfs, xfs`** — the same list, in the same order, as
+`availableFileSystemTypes` in `kiro-calamares-config`'s `partition.conf`. The CTT only writes
+`defaultFileSystemType`, so a choice outside that list would sneak a dropped filesystem back in.
 
-`f2fs` was added (after ext4). `nilfs2` was studied and **deliberately left out** for
-now. Everything else available on the ISO is not a sensible root-filesystem choice (see
-below).
+- **f2fs removed** (installer decision 2026-10-11). Calamares' `fstab` module creates the swap
+  file unpinned on f2fs (it only special-cases btrfs); with our RAM-sized swap file, `swapon`
+  migrates the whole file, times out at 90 s and blocks boot (SDDM after 1 min 32 s on a QEMU
+  test). Few people pick f2fs, so it was dropped rather than patched.
+- **jfs removed** — never in `availableFileSystemTypes`; legacy/niche.
+
+History: on 2026-06-09 the list was `ext4, f2fs, xfs, jfs, btrfs` (f2fs added then).
+`nilfs2` was studied and **deliberately left out**. Everything else available on the ISO is
+not a sensible root-filesystem choice (see below).
 
 ## Inclusion rule
 
-A filesystem belongs in the dropdown only if **all three** hold:
+A filesystem belongs in the dropdown only if **all four** hold:
 
 1. Its `mkfs` tool ships on the live ISO (`kiro-iso/archiso/packages.x86_64`).
 2. Calamares/KPMcore can create it as `defaultFileSystemType`.
 3. It is a real Linux **root** filesystem (not a boot/data/interchange FS).
+4. It is in `availableFileSystemTypes` in `partition.conf`.
 
 Because Kiro's Calamares **clones the live airootfs to the target** (packages.conf only
 `try_remove`s a few ISO-only packages — no fresh pacstrap), any mkfs/utility on the ISO
@@ -29,12 +38,18 @@ also lands on the installed system. So "on the ISO" = "available on the installe
 | FS | ISO tool | Notes |
 |----|----------|-------|
 | ext4 | `e2fsprogs` | Default. Boring, bulletproof, the safe pick. |
-| f2fs | `f2fs-tools` | **Added 2026-06-09.** Flash-friendly log-structured FS; good on SSD/NVMe. Uses mount.conf's `default` mountOptions (`defaults, noatime`). |
-| xfs | `xfsprogs` | Mature, great for large files / parallel I/O. |
-| jfs | `jfsutils` | Legacy/niche, kept on the "expert tool, the choice is the user's" logic. |
 | btrfs | `btrfs-progs` | Fully wired in mount.conf (subvolume layout + zstd). Kiro's snapshot story (snapper) lives here. |
+| xfs | `xfsprogs` | Mature, great for large files / parallel I/O. |
 
 ## Considered but excluded
+
+### f2fs (`f2fs-tools`) — removed 2026-10-20
+Shipped 2026-06-09 → 2026-10-20. Removed to match the installer (see Decision): the
+swap-file-on-f2fs boot stall. The `f2fs` line in `mount.conf` stays, so an existing f2fs
+partition kept in manual mode still mounts. Don't re-add without the `f2fs_io pinfile` fix.
+
+### jfs (`jfsutils`) — removed 2026-10-20
+Legacy/niche, and never offered by the installer itself.
 
 ### nilfs2 (`nilfs-utils`) — studied, left out for now
 Log-structured CoW filesystem (NTT; mainline since 2.6.30). Headline feature is
@@ -49,7 +64,7 @@ FAT ESP so root-on-nilfs2 boots with the nilfs2 initramfs module.
 ACL / SELinux-label support**, plus no subvolumes, no transparent compression, no data
 checksums, and a far smaller testing base. btrfs already covers the CoW + snapshot need
 for Kiro with none of those gaps. nilfs2's continuous-checkpoint angle is interesting
-enough to revisit, but it isn't earning a slot today. *Decision: only do f2fs for now.*
+enough to revisit, but it isn't earning a slot today. *Decision (2026-06-09): only do f2fs for now* — f2fs itself was dropped on 2026-10-20.
 
 ### Not root-filesystem candidates (on the ISO, but excluded by rule 3)
 - `dosfstools` (fat16/32), `exfatprogs` (exfat), `ntfs-3g` (ntfs), `udftools` (udf) —
