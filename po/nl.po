@@ -1,0 +1,161 @@
+# Dutch translations for calamares-tweak-tool package.
+# Copyright (C) 2026 THE calamares-tweak-tool'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the calamares-tweak-tool package.
+# Automatically generated, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: calamares-tweak-tool\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-01 09:53+0100\n"
+"PO-Revision-Date: 2026-11-01 08:38+0100\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: usr/share/calamares-tweak-tool/main.py:101
+#, python-brace-format
+msgid "Loaded from {path}"
+msgstr "Geladen uit {path}"
+
+#: usr/share/calamares-tweak-tool/main.py:103
+#, python-brace-format
+msgid "No Calamares config at {path}"
+msgstr "Geen Calamares-configuratie in {path}"
+
+#: usr/share/calamares-tweak-tool/main.py:124
+#, python-brace-format
+msgid "Permission denied: relaunch as root to edit {path}"
+msgstr "Geen toegang: start opnieuw als root om {path} te bewerken"
+
+#: usr/share/calamares-tweak-tool/main.py:127
+#, python-brace-format
+msgid "Failed: {error}"
+msgstr "Mislukt: {error}"
+
+#: usr/share/calamares-tweak-tool/main.py:130
+#, python-brace-format
+msgid "Saved: {bootloader}, encryption on, {luks}"
+msgstr "Opgeslagen: {bootloader}, versleuteling aan, {luks}"
+
+#: usr/share/calamares-tweak-tool/main.py:132
+#, python-brace-format
+msgid "Saved: {bootloader}, encryption off, {luks}"
+msgstr "Opgeslagen: {bootloader}, versleuteling uit, {luks}"
+
+#: usr/share/calamares-tweak-tool/main.py:142
+msgid "Launching Calamares…"
+msgstr "Calamares wordt gestart…"
+
+#: usr/share/calamares-tweak-tool/main.py:144
+#, python-brace-format
+msgid "Could not launch Calamares: {error}"
+msgstr "Kon Calamares niet starten: {error}"
+
+#: usr/share/calamares-tweak-tool/main.py:163
+#, python-brace-format
+msgid "System ({language})"
+msgstr "Systeem ({language})"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:99
+msgid "dev · bootloader · encryption"
+msgstr "dev · bootloader · versleuteling"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:121
+msgid "Switch to light themes"
+msgstr "Naar lichte thema's"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:121
+msgid "Switch to dark themes"
+msgstr "Naar donkere thema's"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:156
+msgid "Language"
+msgstr "Taal"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:217
+msgid ""
+"Saved. Calamares Tweak Tool shows the new language when it starts again."
+msgstr ""
+"Opgeslagen. Calamares Tweak Tool toont de nieuwe taal bij de volgende start."
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:221
+msgid "Restart now"
+msgstr "Nu herstarten"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:251
+msgid "No Calamares config found at {path}"
+msgstr "Geen Calamares-configuratie gevonden in {path}"
+
+#. TRANSLATORS: card title, written in capitals
+#: usr/share/calamares-tweak-tool/Tweaker.qml:267
+msgid "BOOTLOADER"
+msgstr "BOOTLOADER"
+
+#. TRANSLATORS: card title, written in capitals
+#: usr/share/calamares-tweak-tool/Tweaker.qml:297
+msgid "ENCRYPTION"
+msgstr "VERSLEUTELING"
+
+#. TRANSLATORS: "Encrypt system" is the checkbox in Calamares; use Calamares' own translation of it
+#: usr/share/calamares-tweak-tool/Tweaker.qml:299
+msgid "show the “Encrypt system” option in the installer"
+msgstr "toon de optie “Versleutel systeem” in het installatieprogramma"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:329
+msgid ""
+"Both GRUB (2.14+) and systemd-boot unlock LUKS2/Argon2id at boot — the "
+"stronger KDF."
+msgstr ""
+"Zowel GRUB (2.14+) als systemd-boot ontgrendelen LUKS2/Argon2id bij het "
+"opstarten: de sterkere KDF."
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:407
+msgid ""
+"Read-only: relaunch as root (e.g. sudo -E calamares-tweak-tool) to save "
+"changes."
+msgstr ""
+"Alleen lezen: start opnieuw als root (bv. sudo -E calamares-tweak-tool) om "
+"wijzigingen op te slaan."
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:429
+msgid ""
+"Encryption ON — don't forget to tick “Encrypt system”\n"
+"and set a passphrase in the installer."
+msgstr ""
+"Versleuteling AAN: vergeet niet “Versleutel systeem” aan te vinken\n"
+"en een wachtwoordzin in te stellen in het installatieprogramma."
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:430
+msgid ""
+"Encryption is OFF — turn the switch on, or the installer won't offer to "
+"encrypt."
+msgstr ""
+"Versleuteling staat UIT: zet de schakelaar aan, anders biedt het "
+"installatieprogramma geen versleuteling aan."
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:439
+msgid "Apply"
+msgstr "Toepassen"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:453
+msgid "Launch installer"
+msgstr "Installatieprogramma starten"
+
+#: po/calamares-tweak-tool.desktop.in:3
+msgid "Calamares Tweak Tool"
+msgstr "Calamares Tweak Tool"
+
+#: po/calamares-tweak-tool.desktop.in:4
+msgid "Dev/expert: set Calamares encryption + bootloader before installing"
+msgstr ""
+"Ontwikkelaar/expert: stel de versleuteling en bootloader van Calamares in "
+"vóór de installatie"
+
+#: po/calamares-tweak-tool.desktop.in:9
+msgid "calamares;installer;luks;encryption;bootloader;"
+msgstr "calamares;installer;luks;encryption;bootloader;installatie;versleuteling;opstartlader;"

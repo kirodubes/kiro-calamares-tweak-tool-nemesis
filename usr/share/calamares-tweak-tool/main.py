@@ -9,7 +9,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+import ctt_i18n
 from confedit import BOOTLOADERS, CalamaresConfig
+from ctt_i18n import _
 from PySide6.QtCore import Property, QObject, QUrl, Signal, Slot
 from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtQml import QQmlApplicationEngine
@@ -39,6 +41,7 @@ class Backend(QObject):
         self._bootloader = "systemd-boot"
         self._encryption = False
         self._status = ""
+        self._saved = False
         self._save_tick = 0
         self.reload()
 
@@ -75,12 +78,17 @@ class Backend(QObject):
     def status(self):
         return self._status
 
+    @Property(bool, notify=statusChanged)
+    def saved(self):
+        return self._saved
+
     @Property(int, notify=saveTickChanged)
     def saveTick(self):
         return self._save_tick
 
-    def _set_status(self, text):
+    def _set_status(self, text, saved=False):
         self._status = text
+        self._saved = saved
         self.statusChanged.emit()
 
     # ── slots ───────────────────────────────────────────────────────────
@@ -90,9 +98,9 @@ class Backend(QObject):
             cur = self._cfg.read()
             self._bootloader = cur["bootloader"] if cur["bootloader"] in BOOTLOADERS else "systemd-boot"
             self._encryption = cur["encryption"]
-            self._set_status(f"Loaded from {self._cfg.config_dir}")
+            self._set_status(_("Loaded from {path}").format(path=self._cfg.config_dir))
         else:
-            self._set_status(f"No Calamares config at {self._cfg.config_dir}")
+            self._set_status(_("No Calamares config at {path}").format(path=self._cfg.config_dir))
         self.stateChanged.emit()
 
     @Slot(str)
@@ -113,14 +121,16 @@ class Backend(QObject):
         try:
             self._cfg.apply(self._bootloader, self._encryption)
         except PermissionError:
-            self._set_status(f"Permission denied — relaunch as root to edit {self._cfg.config_dir}")
+            self._set_status(_("Permission denied: relaunch as root to edit {path}").format(path=self._cfg.config_dir))
             return
         except (OSError, KeyError, ValueError) as exc:
-            self._set_status(f"Failed: {exc}")
+            self._set_status(_("Failed: {error}").format(error=exc))
             return
-        enc = "on" if self._encryption else "off"
-        msg = f"Saved: {self._bootloader} · encryption {enc} · {luks}"
-        self._set_status(msg)
+        if self._encryption:
+            msg = _("Saved: {bootloader}, encryption on, {luks}").format(bootloader=self._bootloader, luks=luks)
+        else:
+            msg = _("Saved: {bootloader}, encryption off, {luks}").format(bootloader=self._bootloader, luks=luks)
+        self._set_status(msg, saved=True)
         self._save_tick += 1
         self.saveTickChanged.emit()
         _notify(msg)
@@ -129,9 +139,52 @@ class Backend(QObject):
     def launchInstaller(self):
         try:
             subprocess.Popen(LAUNCH_CMD)
-            self._set_status("Launching Calamares…")
+            self._set_status(_("Launching Calamares…"))
         except OSError as exc:
-            self._set_status(f"Could not launch Calamares: {exc}")
+            self._set_status(_("Could not launch Calamares: {error}").format(error=exc))
+
+
+class I18n(QObject):
+    """Translations for the QML side, plus the header's language dropdown."""
+
+    pendingChanged = Signal()
+
+    def __init__(self):
+        super().__init__()
+        self._codes = [None, *ctt_i18n.available()]
+        self._pending = False
+
+    @Slot(str, result=str)
+    def t(self, text):
+        return _(text)
+
+    @Property("QStringList", constant=True)
+    def languageLabels(self):
+        system = _("System ({language})").format(language=ctt_i18n.name(ctt_i18n.SYSTEM))
+        return [system, *(ctt_i18n.name(c) for c in self._codes[1:])]
+
+    @Property(int, constant=True)
+    def languageIndex(self):
+        chosen = ctt_i18n.chosen()
+        return self._codes.index(chosen) if chosen in self._codes else 0
+
+    @Property(bool, notify=pendingChanged)
+    def pending(self):
+        return self._pending
+
+    @Slot(int)
+    def chooseLanguage(self, index):
+        try:
+            ctt_i18n.save_choice(self._codes[index])
+        except OSError:
+            return
+        self._pending = True
+        self.pendingChanged.emit()
+
+    @Slot()
+    def restart(self):
+        ctt_i18n.restore_environment()
+        os.execv(sys.executable, [sys.executable, os.path.abspath(sys.argv[0]), *sys.argv[1:]])
 
 
 def main():
@@ -152,7 +205,9 @@ def main():
 
     engine = QQmlApplicationEngine()
     ctx = engine.rootContext()
+    i18n = I18n()
     ctx.setContextProperty("backend", backend)
+    ctx.setContextProperty("i18n", i18n)
     ctx.setContextProperty("logoPath", QUrl.fromLocalFile(str(here / "assets" / "logo.png")).toString())
     engine.load(QUrl.fromLocalFile(str(here / "Tweaker.qml")))
     if not engine.rootObjects():

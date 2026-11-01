@@ -40,6 +40,13 @@ calamares-tweak-tool --config-dir /path/to/etc/calamares
 The **Launch installer** button runs `/usr/bin/calamares_polkit -d -style kvantum` —
 exactly the same command as the Kiro live launcher (`cal-kiro.desktop`).
 
+## Languages
+
+English, Nederlands, Deutsch, Español, Français, Português (Brasil), Русский, Magyar, Italiano, Türkçe,
+Polski, 日本語, 简体中文 and Română. The tool follows the system language; the dropdown at the top right
+picks another, and **Restart now** reopens it in that language. Wording fixes are welcome in
+Discussions or as a pull request on `po/<language>.po`.
+
 ## Status
 
 v1 — encryption ↔ bootloader pairing. Everything else (filesystem, swap, kernel params,

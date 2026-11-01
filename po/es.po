@@ -1,0 +1,162 @@
+# Spanish translations for calamares-tweak-tool package.
+# Copyright (C) 2026 THE calamares-tweak-tool'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the calamares-tweak-tool package.
+# Automatically generated, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: calamares-tweak-tool\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-01 09:53+0100\n"
+"PO-Revision-Date: 2026-11-01 08:38+0100\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: usr/share/calamares-tweak-tool/main.py:101
+#, python-brace-format
+msgid "Loaded from {path}"
+msgstr "Cargado desde {path}"
+
+#: usr/share/calamares-tweak-tool/main.py:103
+#, python-brace-format
+msgid "No Calamares config at {path}"
+msgstr "No hay configuración de Calamares en {path}"
+
+#: usr/share/calamares-tweak-tool/main.py:124
+#, python-brace-format
+msgid "Permission denied: relaunch as root to edit {path}"
+msgstr "Permiso denegado: vuelve a abrirlo como root para editar {path}"
+
+#: usr/share/calamares-tweak-tool/main.py:127
+#, python-brace-format
+msgid "Failed: {error}"
+msgstr "Error: {error}"
+
+#: usr/share/calamares-tweak-tool/main.py:130
+#, python-brace-format
+msgid "Saved: {bootloader}, encryption on, {luks}"
+msgstr "Guardado: {bootloader}, cifrado activado, {luks}"
+
+#: usr/share/calamares-tweak-tool/main.py:132
+#, python-brace-format
+msgid "Saved: {bootloader}, encryption off, {luks}"
+msgstr "Guardado: {bootloader}, cifrado desactivado, {luks}"
+
+#: usr/share/calamares-tweak-tool/main.py:142
+msgid "Launching Calamares…"
+msgstr "Abriendo Calamares…"
+
+#: usr/share/calamares-tweak-tool/main.py:144
+#, python-brace-format
+msgid "Could not launch Calamares: {error}"
+msgstr "No se pudo abrir Calamares: {error}"
+
+#: usr/share/calamares-tweak-tool/main.py:163
+#, python-brace-format
+msgid "System ({language})"
+msgstr "Sistema ({language})"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:99
+msgid "dev · bootloader · encryption"
+msgstr "dev · gestor de arranque · cifrado"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:121
+msgid "Switch to light themes"
+msgstr "Cambiar a temas claros"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:121
+msgid "Switch to dark themes"
+msgstr "Cambiar a temas oscuros"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:156
+msgid "Language"
+msgstr "Idioma"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:217
+msgid ""
+"Saved. Calamares Tweak Tool shows the new language when it starts again."
+msgstr ""
+"Guardado. Calamares Tweak Tool mostrará el nuevo idioma la próxima vez que "
+"se abra."
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:221
+msgid "Restart now"
+msgstr "Reiniciar ahora"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:251
+msgid "No Calamares config found at {path}"
+msgstr "No se encontró configuración de Calamares en {path}"
+
+#. TRANSLATORS: card title, written in capitals
+#: usr/share/calamares-tweak-tool/Tweaker.qml:267
+msgid "BOOTLOADER"
+msgstr "GESTOR DE ARRANQUE"
+
+#. TRANSLATORS: card title, written in capitals
+#: usr/share/calamares-tweak-tool/Tweaker.qml:297
+msgid "ENCRYPTION"
+msgstr "CIFRADO"
+
+#. TRANSLATORS: "Encrypt system" is the checkbox in Calamares; use Calamares' own translation of it
+#: usr/share/calamares-tweak-tool/Tweaker.qml:299
+msgid "show the “Encrypt system” option in the installer"
+msgstr "mostrar la opción «Cifrar sistema» en el instalador"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:329
+msgid ""
+"Both GRUB (2.14+) and systemd-boot unlock LUKS2/Argon2id at boot — the "
+"stronger KDF."
+msgstr ""
+"Tanto GRUB (2.14+) como systemd-boot desbloquean LUKS2 con Argon2id al "
+"arrancar, una función de derivación de claves más robusta."
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:407
+msgid ""
+"Read-only: relaunch as root (e.g. sudo -E calamares-tweak-tool) to save "
+"changes."
+msgstr ""
+"Solo lectura: vuelve a abrirlo como root (p. ej. sudo -E calamares-tweak-"
+"tool) para guardar los cambios."
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:429
+msgid ""
+"Encryption ON — don't forget to tick “Encrypt system”\n"
+"and set a passphrase in the installer."
+msgstr ""
+"Cifrado ACTIVADO: no olvides marcar «Cifrar sistema»\n"
+"y establecer una frase de contraseña en el instalador."
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:430
+msgid ""
+"Encryption is OFF — turn the switch on, or the installer won't offer to "
+"encrypt."
+msgstr ""
+"El cifrado está DESACTIVADO: activa el interruptor o el instalador no "
+"ofrecerá la opción de cifrar."
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:439
+msgid "Apply"
+msgstr "Aplicar"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:453
+msgid "Launch installer"
+msgstr "Abrir el instalador"
+
+#: po/calamares-tweak-tool.desktop.in:3
+msgid "Calamares Tweak Tool"
+msgstr "Calamares Tweak Tool"
+
+#: po/calamares-tweak-tool.desktop.in:4
+msgid "Dev/expert: set Calamares encryption + bootloader before installing"
+msgstr ""
+"Desarrollador/experto: configura el cifrado y el gestor de arranque de "
+"Calamares antes de instalar"
+
+#: po/calamares-tweak-tool.desktop.in:9
+msgid "calamares;installer;luks;encryption;bootloader;"
+msgstr "calamares;installer;luks;encryption;bootloader;instalador;cifrado;arranque;"

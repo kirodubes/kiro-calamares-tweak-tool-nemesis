@@ -38,6 +38,18 @@ the live ISO airootfs (installer-only side), NOT nemesis_repo. PKGBUILD recipe:
 build.sh's glob); runtime deps `pyside6`, `polkit`. Built into `kiro_repo` via that
 recipe's `build.sh` (build.sh auto-bumps pkgrel).
 
+## Translations (since 2026-11-01)
+- `ctt_i18n.py` (copy of kiro-gdrive's `kgd_i18n.py`): domain `calamares-tweak-tool`, catalogs in
+  `usr/share/locale`, choice in `~/.config/calamares-tweak-tool/prefs.json`; `CTT_LANGUAGE` beats it and the
+  system language. Dropdown + Restart now sit at the top right of the header (Kiro rule for every app).
+- Python strings use `_()`; QML strings use `i18n.t("…")` with `.replace("{name}", value)` for placeholders.
+  Whole sentences only. Never translated: "Calamares Tweak Tool", theme names, bootloader names, paths.
+- Never compare translated text: the saved pill reads `backend.saved`, not the status string.
+- After changing any visible text: `bash po/make-mo.sh`, translate the new entries in all 13 `.po`, run it again.
+  Edit the menu entry in `po/calamares-tweak-tool.desktop.in`, never in `usr/share/applications/` (overwritten).
+  Rules and tools: Kiro-HQ `TRANSLATIONS/`.
+- The nemesis twin carries the same code and catalogs: change both.
+
 ## Status
 v1 — encryption ↔ bootloader pairing. v2 backlog (swap, kernel params, timezone, shell,
 groups, services, presets, schema-driven UI) in the design doc. No filesystem picker: one

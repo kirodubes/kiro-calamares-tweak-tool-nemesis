@@ -8,7 +8,9 @@ Window {
     id: win
     visible: true
     title: "Calamares Tweak Tool"
-    width: 780
+    // the header row (title, theme swatches, language dropdown) sets the floor; longer languages widen it
+    width: Math.max(780, headerRow.implicitWidth + 56)
+    minimumWidth: headerRow.implicitWidth + 56
     height: 740
     color: win.t.bgBottom
 
@@ -54,7 +56,7 @@ Window {
     // Semantic colours are mode-derived (not per-theme): amber warning, red danger.
     readonly property color warn: appSettings.mode === "dark" ? "#F59E0B" : "#B45309"
     readonly property color danger: appSettings.mode === "dark" ? "#F87171" : "#DC2626"
-    readonly property bool savedNow: backend.status.indexOf("Saved:") === 0
+    readonly property bool savedNow: backend.saved
 
     // Translucent tint of a colour over the card — works on light and dark.
     function tint(c, a) { return Qt.rgba(c.r, c.g, c.b, a) }
@@ -86,6 +88,7 @@ Window {
 
             // ── Header ──────────────────────────────────────────────────
             RowLayout {
+                id: headerRow
                 Layout.fillWidth: true
                 spacing: 14
                 Image { source: logoPath; sourceSize.height: 40; fillMode: Image.PreserveAspectFit }
@@ -93,7 +96,7 @@ Window {
                     spacing: 1
                     Text { text: "Calamares Tweak Tool"; color: win.t.title; font.pixelSize: 22; font.bold: true }
                     Text {
-                        text: "dev · bootloader · encryption"
+                        text: i18n.t("dev · bootloader · encryption")
                         color: win.t.subtext; font.pixelSize: 12
                     }
                 }
@@ -115,7 +118,7 @@ Window {
                             anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                             onClicked: appSettings.mode = (appSettings.mode === "dark" ? "light" : "dark")
                             ToolTip.visible: containsMouse
-                            ToolTip.text: appSettings.mode === "dark" ? "Switch to light themes" : "Switch to dark themes"
+                            ToolTip.text: appSettings.mode === "dark" ? i18n.t("Switch to light themes") : i18n.t("Switch to dark themes")
                         }
                     }
                     Repeater {
@@ -142,6 +145,90 @@ Window {
                         }
                     }
                 }
+                // Language: each language in its own name; the choice shows after a restart
+                ComboBox {
+                    id: langCombo
+                    Layout.preferredWidth: Math.max(150, langMetrics.advanceWidth + 52)
+                    model: i18n.languageLabels
+                    currentIndex: i18n.languageIndex
+                    onActivated: i18n.chooseLanguage(currentIndex)
+                    ToolTip.visible: hovered && !popup.visible
+                    ToolTip.text: i18n.t("Language")
+
+                    TextMetrics { id: langMetrics; font.pixelSize: 13; text: langCombo.displayText }
+                    contentItem: Text {
+                        text: langCombo.displayText
+                        color: win.t.desc; font.pixelSize: 13
+                        leftPadding: 10; rightPadding: 26
+                        verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight
+                    }
+                    indicator: Text {
+                        text: "▾"; color: win.t.subtext; font.pixelSize: 13
+                        x: langCombo.width - width - 10
+                        y: (langCombo.height - height) / 2
+                    }
+                    background: Rectangle {
+                        implicitHeight: 32; radius: 8
+                        color: win.t.bgBottom
+                        border.width: 1
+                        border.color: langCombo.popup.visible ? win.t.accentA : win.t.cardBorder
+                    }
+                    delegate: ItemDelegate {
+                        id: langDelegate
+                        width: langCombo.width
+                        highlighted: langCombo.highlightedIndex === index
+                        contentItem: Text {
+                            text: modelData
+                            color: langDelegate.highlighted ? "#ffffff" : win.t.desc
+                            font.pixelSize: 13; leftPadding: 8
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        background: Rectangle {
+                            color: langDelegate.highlighted ? win.t.accentA : "transparent"
+                        }
+                    }
+                    popup: Popup {
+                        y: langCombo.height + 2
+                        width: langCombo.width
+                        implicitHeight: Math.min(contentItem.implicitHeight, 420)
+                        padding: 1
+                        contentItem: ListView {
+                            clip: true
+                            implicitHeight: contentHeight
+                            model: langCombo.popup.visible ? langCombo.delegateModel : null
+                            currentIndex: langCombo.highlightedIndex
+                        }
+                        background: Rectangle {
+                            radius: 8; color: win.t.cardBg
+                            border.color: win.t.cardBorder; border.width: 1
+                        }
+                    }
+                }
+            }
+
+            // ── Language restart notice ─────────────────────────────────
+            RowLayout {
+                Layout.fillWidth: true
+                visible: i18n.pending
+                spacing: 12
+                Text {
+                    Layout.fillWidth: true
+                    wrapMode: Text.WordWrap
+                    text: i18n.t("Saved. Calamares Tweak Tool shows the new language when it starts again.")
+                    color: win.t.accentB; font.pixelSize: 13
+                }
+                Button {
+                    text: i18n.t("Restart now")
+                    onClicked: i18n.restart()
+                    leftPadding: 16; rightPadding: 16
+                    Layout.preferredHeight: 32
+                    contentItem: Text { text: parent.text; color: "#ffffff"; font.pixelSize: 13; font.bold: true
+                                        horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
+                    background: Rectangle {
+                        radius: 8
+                        color: parent.down ? Qt.darker(win.t.accentB, 1.2) : win.t.accentB
+                    }
+                }
             }
 
             Rectangle {
@@ -161,7 +248,7 @@ Window {
                 implicitHeight: 44
                 Text {
                     anchors.centerIn: parent
-                    text: "No Calamares config found at " + backend.configDir
+                    text: i18n.t("No Calamares config found at {path}").replace("{path}", backend.configDir)
                     color: win.danger; font.pixelSize: 13
                 }
             }
@@ -176,7 +263,8 @@ Window {
                     id: blCol
                     anchors { left: parent.left; right: parent.right; top: parent.top; margins: 16 }
                     spacing: 10
-                    Text { text: "BOOTLOADER"; color: win.t.accentA; font.pixelSize: 12; font.bold: true; font.letterSpacing: 1.4 }
+                    // TRANSLATORS: card title, written in capitals
+                    Text { text: i18n.t("BOOTLOADER"); color: win.t.accentA; font.pixelSize: 12; font.bold: true; font.letterSpacing: 1.4 }
                     RowLayout {
                         spacing: 10
                         Repeater {
@@ -205,8 +293,10 @@ Window {
                     anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; margins: 16 }
                     ColumnLayout {
                         spacing: 1
-                        Text { text: "ENCRYPTION"; color: win.t.accentA; font.pixelSize: 12; font.bold: true; font.letterSpacing: 1.4 }
-                        Text { text: "show the “Encrypt system” option in the installer"; color: win.t.subtext; font.pixelSize: 12 }
+                        // TRANSLATORS: card title, written in capitals
+                        Text { text: i18n.t("ENCRYPTION"); color: win.t.accentA; font.pixelSize: 12; font.bold: true; font.letterSpacing: 1.4 }
+                        // TRANSLATORS: "Encrypt system" is the checkbox in Calamares; use Calamares' own translation of it
+                        Text { text: i18n.t("show the “Encrypt system” option in the installer"); color: win.t.subtext; font.pixelSize: 12 }
                     }
                     Item { Layout.fillWidth: true }
                     Switch {
@@ -236,7 +326,7 @@ Window {
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
                         color: win.t.desc; font.pixelSize: 13
-                        text: "Both GRUB (2.14+) and systemd-boot unlock LUKS2/Argon2id at boot — the stronger KDF."
+                        text: i18n.t("Both GRUB (2.14+) and systemd-boot unlock LUKS2/Argon2id at boot — the stronger KDF.")
                     }
                 }
             }
@@ -313,7 +403,8 @@ Window {
             Text {
                 Layout.fillWidth: true
                 visible: backend.configExists && !backend.writable
-                text: "Read-only: relaunch as root (e.g. sudo -E calamares-tweak-tool) to save changes."
+                wrapMode: Text.WordWrap
+                text: i18n.t("Read-only: relaunch as root (e.g. sudo -E calamares-tweak-tool) to save changes.")
                 color: win.warn; font.pixelSize: 12
             }
 
@@ -335,8 +426,8 @@ Window {
                     font.bold: true
                     color: backend.encryption ? win.t.accentB : win.warn
                     text: backend.encryption
-                          ? "Encryption ON — don't forget to tick “Encrypt system”\nand set a passphrase in the installer."
-                          : "⚠  Encryption is OFF — turn the switch on, or the installer won't offer to encrypt."
+                          ? i18n.t("Encryption ON — don't forget to tick “Encrypt system”\nand set a passphrase in the installer.")
+                          : "⚠  " + i18n.t("Encryption is OFF — turn the switch on, or the installer won't offer to encrypt.")
                 }
             }
 
@@ -345,10 +436,11 @@ Window {
                 Layout.fillWidth: true
                 spacing: 12
                 Button {
-                    text: "Apply"
+                    text: i18n.t("Apply")
                     enabled: backend.configExists && backend.writable
                     onClicked: backend.apply()
-                    Layout.preferredWidth: 120; Layout.preferredHeight: 42
+                    leftPadding: 24; rightPadding: 24
+                    Layout.minimumWidth: 120; Layout.preferredHeight: 42
                     contentItem: Text { text: parent.text; color: "#ffffff"; font.pixelSize: 15; font.bold: true
                                         horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
                     background: Rectangle {
@@ -358,9 +450,10 @@ Window {
                 }
                 Item { Layout.fillWidth: true }
                 Button {
-                    text: "Launch installer"
+                    text: i18n.t("Launch installer")
                     onClicked: backend.launchInstaller()
-                    Layout.preferredWidth: 170; Layout.preferredHeight: 42
+                    leftPadding: 24; rightPadding: 24
+                    Layout.minimumWidth: 170; Layout.preferredHeight: 42
                     contentItem: Text { text: parent.text; color: win.t.desc; font.pixelSize: 15
                                         horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
                     background: Rectangle { radius: 10; color: "transparent"; border.color: win.t.cardBorder; border.width: 1 }

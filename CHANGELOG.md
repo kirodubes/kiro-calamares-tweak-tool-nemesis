@@ -7,6 +7,11 @@
   its Erase disk page, so the card duplicated the installer. It also had to be kept in sync with
   `availableFileSystemTypes` by hand, and that drifted once (f2fs/jfs, fixed 2026.10.20). The CTT
   is back to what the installer can't choose itself: bootloader and encryption.
+- The tool now speaks **13 languages** (nl, de, es, fr, pt_BR, ru, hu, it, tr, pl, ja, zh_CN, ro) and
+  follows the system language. A **language dropdown** at the top right of the header lets you pick
+  another; **Restart now** reopens the tool in it.
+- The window widens to fit its header (title, theme swatches, language dropdown), and the Apply and
+  Launch installer buttons grow with their label, so longer languages are not cut off.
 
 ### Technical Details
 - `FILESYSTEMS`, the `filesystem` read key and the `defaultFileSystemType` write are gone from
@@ -16,12 +21,33 @@
   that sets the default. FILESYSTEMS.md is kept as the study of why ext4/btrfs/xfs are offered.
 - Tested against a temp copy of the live config (`--config-dir`): saving still writes the
   bootloader and encryption keys and leaves `defaultFileSystemType` untouched; the QML loads cleanly.
+- Translations use gettext like the other Kiro apps. `ctt_i18n.py` is a copy of kiro-gdrive's
+  `kgd_i18n.py` (domain `calamares-tweak-tool`, sibling fallback pt→pt_BR and zh→zh_CN, `CTT_LANGUAGE`
+  pins a language for tests). The choice lives in `~/.config/calamares-tweak-tool/prefs.json`: the theme's
+  QSettings only load after the catalog is picked. The tool runs as root, so that is root's home.
+- QML has no gettext, so `main.py` exposes an `I18n` object: `i18n.t("…")` translates, placeholders go
+  through `.replace("{path}", …)`. xgettext's JavaScript parser reads those calls from `Tweaker.qml`
+  (`po/make-mo.sh`, keyword `t`).
+- The saved pill used to test `status.indexOf("Saved:")`, which breaks once the status is translated;
+  `Backend.saved` is now a flag. The two save messages are whole sentences (encryption on / off).
+- 28 strings. The shared ones (Language, Restart now, System (…)) are reused from kiro-gdrive; the rest
+  were drafted per language register and reviewed by a second AI (Copilot, `ai-review.py`): 31 findings,
+  23 taken. Rejected: Turkish "-in" endings on buttons (bare imperatives are the norm there) and Dutch
+  "op" for "in" a folder. Checked off-screen in de, ru, ja, es, fr and en.
+- Menu entry is generated from `po/calamares-tweak-tool.desktop.in`; the recipe copies `usr/` whole, so
+  the `.mo` files ship with no PKGBUILD change.
 
 ### Files Modified
 - `usr/share/calamares-tweak-tool/confedit.py`
 - `usr/share/calamares-tweak-tool/main.py`
 - `usr/share/calamares-tweak-tool/Tweaker.qml`
+- `usr/share/calamares-tweak-tool/ctt_i18n.py` (new)
+- `usr/share/locale/*/LC_MESSAGES/calamares-tweak-tool.mo` (new, 13)
+- `usr/share/applications/calamares-tweak-tool.desktop` (now generated)
+- `po/` (new: `make-mo.sh`, `calamares-tweak-tool.pot`, `calamares-tweak-tool.desktop.in`, `LINGUAS`, 13 `.po`)
+- `.codespellrc` (new)
 - `FILESYSTEMS.md`
+- `README.md`
 - `CLAUDE.md`
 - `CHANGELOG.md`
 

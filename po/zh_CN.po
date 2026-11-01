@@ -1,0 +1,154 @@
+# Chinese translations for calamares-tweak-tool package.
+# Copyright (C) 2026 THE calamares-tweak-tool'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the calamares-tweak-tool package.
+# Automatically generated, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: calamares-tweak-tool\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-01 09:53+0100\n"
+"PO-Revision-Date: 2026-11-01 08:38+0100\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: usr/share/calamares-tweak-tool/main.py:101
+#, python-brace-format
+msgid "Loaded from {path}"
+msgstr "已从 {path} 加载"
+
+#: usr/share/calamares-tweak-tool/main.py:103
+#, python-brace-format
+msgid "No Calamares config at {path}"
+msgstr "{path} 中没有 Calamares 配置"
+
+#: usr/share/calamares-tweak-tool/main.py:124
+#, python-brace-format
+msgid "Permission denied: relaunch as root to edit {path}"
+msgstr "权限被拒绝：请以 root 身份重新启动以编辑 {path}"
+
+#: usr/share/calamares-tweak-tool/main.py:127
+#, python-brace-format
+msgid "Failed: {error}"
+msgstr "失败：{error}"
+
+#: usr/share/calamares-tweak-tool/main.py:130
+#, python-brace-format
+msgid "Saved: {bootloader}, encryption on, {luks}"
+msgstr "已保存：{bootloader}，加密开启，{luks}"
+
+#: usr/share/calamares-tweak-tool/main.py:132
+#, python-brace-format
+msgid "Saved: {bootloader}, encryption off, {luks}"
+msgstr "已保存：{bootloader}，加密关闭，{luks}"
+
+#: usr/share/calamares-tweak-tool/main.py:142
+msgid "Launching Calamares…"
+msgstr "正在启动 Calamares…"
+
+#: usr/share/calamares-tweak-tool/main.py:144
+#, python-brace-format
+msgid "Could not launch Calamares: {error}"
+msgstr "无法启动 Calamares：{error}"
+
+#: usr/share/calamares-tweak-tool/main.py:163
+#, python-brace-format
+msgid "System ({language})"
+msgstr "系统（{language}）"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:99
+msgid "dev · bootloader · encryption"
+msgstr "开发者 · 引导程序 · 加密"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:121
+msgid "Switch to light themes"
+msgstr "切换到浅色主题"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:121
+msgid "Switch to dark themes"
+msgstr "切换到深色主题"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:156
+msgid "Language"
+msgstr "语言"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:217
+msgid ""
+"Saved. Calamares Tweak Tool shows the new language when it starts again."
+msgstr "已保存。Calamares Tweak Tool 下次启动时将显示新语言。"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:221
+msgid "Restart now"
+msgstr "立即重启"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:251
+msgid "No Calamares config found at {path}"
+msgstr "在 {path} 中找不到 Calamares 配置"
+
+#. TRANSLATORS: card title, written in capitals
+#: usr/share/calamares-tweak-tool/Tweaker.qml:267
+msgid "BOOTLOADER"
+msgstr "引导程序"
+
+#. TRANSLATORS: card title, written in capitals
+#: usr/share/calamares-tweak-tool/Tweaker.qml:297
+msgid "ENCRYPTION"
+msgstr "加密"
+
+#. TRANSLATORS: "Encrypt system" is the checkbox in Calamares; use Calamares' own translation of it
+#: usr/share/calamares-tweak-tool/Tweaker.qml:299
+msgid "show the “Encrypt system” option in the installer"
+msgstr "在安装程序中显示“加密系统”选项"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:329
+msgid ""
+"Both GRUB (2.14+) and systemd-boot unlock LUKS2/Argon2id at boot — the "
+"stronger KDF."
+msgstr ""
+"GRUB（2.14+）和 systemd-boot 都能在启动时解锁 LUKS2/Argon2id，这是更强的 "
+"KDF。"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:407
+msgid ""
+"Read-only: relaunch as root (e.g. sudo -E calamares-tweak-tool) to save "
+"changes."
+msgstr ""
+"只读：请以 root 身份重新启动（例如 sudo -E calamares-tweak-tool）以保存更改。"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:429
+msgid ""
+"Encryption ON — don't forget to tick “Encrypt system”\n"
+"and set a passphrase in the installer."
+msgstr ""
+"加密已开启：别忘了在安装程序中勾选“加密系统”\n"
+"并设置密码短语。"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:430
+msgid ""
+"Encryption is OFF — turn the switch on, or the installer won't offer to "
+"encrypt."
+msgstr "加密已关闭：请打开开关，否则安装程序不会提供加密选项。"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:439
+msgid "Apply"
+msgstr "应用"
+
+#: usr/share/calamares-tweak-tool/Tweaker.qml:453
+msgid "Launch installer"
+msgstr "启动安装程序"
+
+#: po/calamares-tweak-tool.desktop.in:3
+msgid "Calamares Tweak Tool"
+msgstr "Calamares Tweak Tool"
+
+#: po/calamares-tweak-tool.desktop.in:4
+msgid "Dev/expert: set Calamares encryption + bootloader before installing"
+msgstr "开发者/专家：在安装前设置 Calamares 的加密和引导程序"
+
+#: po/calamares-tweak-tool.desktop.in:9
+msgid "calamares;installer;luks;encryption;bootloader;"
+msgstr "calamares;installer;luks;encryption;bootloader;安装程序;加密;引导程序;"
