@@ -1,5 +1,9 @@
 # Root-filesystem dropdown — choices & study
 
+> **2026-11-01: the CTT dropdown was removed.** Calamares offers this choice itself on the
+> Erase disk page; the list below now only documents `availableFileSystemTypes` in
+> kiro-calamares-config's `partition.conf`. Don't re-add a filesystem picker to the CTT.
+
 Study behind the CTT's root-filesystem picker (`FILESYSTEMS` in `confedit.py`,
 surfaced as the FILESYSTEM dropdown in `Tweaker.qml`). Records what we ship, what we
 considered, and why — so the next person doesn't re-litigate it.

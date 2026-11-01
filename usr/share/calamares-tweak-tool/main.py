@@ -9,7 +9,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from confedit import BOOTLOADERS, FILESYSTEMS, CalamaresConfig
+from confedit import BOOTLOADERS, CalamaresConfig
 from PySide6.QtCore import Property, QObject, QUrl, Signal, Slot
 from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtQml import QQmlApplicationEngine
@@ -38,7 +38,6 @@ class Backend(QObject):
         self._cfg = CalamaresConfig(config_dir)
         self._bootloader = "systemd-boot"
         self._encryption = False
-        self._filesystem = "ext4"
         self._status = ""
         self._save_tick = 0
         self.reload()
@@ -60,17 +59,9 @@ class Backend(QObject):
     def bootloaders(self):
         return list(BOOTLOADERS)
 
-    @Property("QStringList", constant=True)
-    def filesystems(self):
-        return list(FILESYSTEMS)
-
     @Property(str, notify=stateChanged)
     def bootloader(self):
         return self._bootloader
-
-    @Property(str, notify=stateChanged)
-    def filesystem(self):
-        return self._filesystem
 
     @Property(bool, notify=stateChanged)
     def encryption(self):
@@ -99,7 +90,6 @@ class Backend(QObject):
             cur = self._cfg.read()
             self._bootloader = cur["bootloader"] if cur["bootloader"] in BOOTLOADERS else "systemd-boot"
             self._encryption = cur["encryption"]
-            self._filesystem = cur["filesystem"] if cur["filesystem"] in FILESYSTEMS else "ext4"
             self._set_status(f"Loaded from {self._cfg.config_dir}")
         else:
             self._set_status(f"No Calamares config at {self._cfg.config_dir}")
@@ -117,17 +107,11 @@ class Backend(QObject):
             self._encryption = bool(value)
             self.stateChanged.emit()
 
-    @Slot(str)
-    def setFilesystem(self, value):
-        if value in FILESYSTEMS and value != self._filesystem:
-            self._filesystem = value
-            self.stateChanged.emit()
-
     @Slot()
     def apply(self):
         luks = self._cfg.derived_luks(self._bootloader)
         try:
-            self._cfg.apply(self._bootloader, self._encryption, self._filesystem)
+            self._cfg.apply(self._bootloader, self._encryption)
         except PermissionError:
             self._set_status(f"Permission denied — relaunch as root to edit {self._cfg.config_dir}")
             return
@@ -135,7 +119,7 @@ class Backend(QObject):
             self._set_status(f"Failed: {exc}")
             return
         enc = "on" if self._encryption else "off"
-        msg = f"Saved: {self._bootloader} · {self._filesystem} · encryption {enc} · {luks}"
+        msg = f"Saved: {self._bootloader} · encryption {enc} · {luks}"
         self._set_status(msg)
         self._save_tick += 1
         self.saveTickChanged.emit()

@@ -1,5 +1,30 @@
 # Changelog
 
+## 2026.11.01
+
+### What Changed
+- Removed the **FILESYSTEM** dropdown. Calamares already offers the same ext4/btrfs/xfs choice on
+  its Erase disk page, so the card duplicated the installer. It also had to be kept in sync with
+  `availableFileSystemTypes` by hand, and that drifted once (f2fs/jfs, fixed 2026.10.20). The CTT
+  is back to what the installer can't choose itself: bootloader and encryption.
+
+### Technical Details
+- `FILESYSTEMS`, the `filesystem` read key and the `defaultFileSystemType` write are gone from
+  `confedit.py`; `apply()` takes `(bootloader, encryption)`. `main.py` drops the filesystem
+  property, slot and status text; `Tweaker.qml` drops the card and "filesystem" from the subtitle.
+- `defaultFileSystemType` in kiro-calamares-config's `partition.conf` (ext4) is now the only place
+  that sets the default. FILESYSTEMS.md is kept as the study of why ext4/btrfs/xfs are offered.
+- Tested against a temp copy of the live config (`--config-dir`): saving still writes the
+  bootloader and encryption keys and leaves `defaultFileSystemType` untouched; the QML loads cleanly.
+
+### Files Modified
+- `usr/share/calamares-tweak-tool/confedit.py`
+- `usr/share/calamares-tweak-tool/main.py`
+- `usr/share/calamares-tweak-tool/Tweaker.qml`
+- `FILESYSTEMS.md`
+- `CLAUDE.md`
+- `CHANGELOG.md`
+
 ## 2026.10.20
 
 ### What Changed

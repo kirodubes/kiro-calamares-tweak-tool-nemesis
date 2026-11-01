@@ -11,11 +11,6 @@ LUKS_FOR = {"grub": "luks2", "systemd-boot": "luks2"}
 
 BOOTLOADERS = ("systemd-boot", "grub")
 
-# Root filesystem choices — must match availableFileSystemTypes in kiro-calamares-config's
-# partition.conf. No f2fs: Calamares creates its swap file unpinned there, so swapon stalls
-# ~90 s at every boot. No jfs: never offered by the installer itself.
-FILESYSTEMS = ("ext4", "btrfs", "xfs")
-
 
 def _get_scalar(text, key):
     """First uncommented `key: value` value (quotes stripped), or None."""
@@ -57,7 +52,7 @@ class CalamaresConfig:
         return LUKS_FOR.get(bootloader, "luks2")
 
     def read(self):
-        """Current state as {bootloader, luksGeneration, encryption, filesystem}."""
+        """Current state as {bootloader, luksGeneration, encryption}."""
         bt = self.bootloader_path.read_text()
         pt = self.partition_path.read_text()
         bootloader = _get_scalar(bt, "efiBootLoader") or "systemd-boot"
@@ -65,16 +60,12 @@ class CalamaresConfig:
             "bootloader": bootloader,
             "luksGeneration": _get_scalar(pt, "luksGeneration") or "luks2",
             "encryption": (_get_scalar(pt, "enableLuksAutomatedPartitioning") or "false").lower() == "true",
-            "filesystem": _get_scalar(pt, "defaultFileSystemType") or "ext4",
         }
 
-    def apply(self, bootloader, encryption, filesystem):
-        """Write the bootloader, the derived luksGeneration, the encryption switch, and the
-        root defaultFileSystemType (the only filesystem key the simplified config keeps)."""
+    def apply(self, bootloader, encryption):
+        """Write the bootloader, the derived luksGeneration and the encryption switch."""
         if bootloader not in BOOTLOADERS:
             raise ValueError(f"unknown bootloader: {bootloader}")
-        if filesystem not in FILESYSTEMS:
-            raise ValueError(f"unknown filesystem: {filesystem}")
 
         bt = self.bootloader_path.read_text()
         bt, nb = _set_scalar(bt, "efiBootLoader", f'"{bootloader}"')
@@ -82,11 +73,9 @@ class CalamaresConfig:
         pt = self.partition_path.read_text()
         pt, nl = _set_scalar(pt, "luksGeneration", self.derived_luks(bootloader))
         pt, ne = _set_scalar(pt, "enableLuksAutomatedPartitioning", "true" if encryption else "false")
-        pt, nf = _set_scalar(pt, "defaultFileSystemType", f'"{filesystem}"')
 
         missing = [k for k, n in (("efiBootLoader", nb), ("luksGeneration", nl),
-                                  ("enableLuksAutomatedPartitioning", ne),
-                                  ("defaultFileSystemType", nf)) if n == 0]
+                                  ("enableLuksAutomatedPartitioning", ne)) if n == 0]
         if missing:
             raise KeyError(f"settings not found in config: {', '.join(missing)}")
 

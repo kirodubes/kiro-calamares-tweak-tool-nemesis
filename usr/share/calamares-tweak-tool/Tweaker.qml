@@ -93,7 +93,7 @@ Window {
                     spacing: 1
                     Text { text: "Calamares Tweak Tool"; color: win.t.title; font.pixelSize: 22; font.bold: true }
                     Text {
-                        text: "dev · filesystem · bootloader · encryption"
+                        text: "dev · bootloader · encryption"
                         color: win.t.subtext; font.pixelSize: 12
                     }
                 }
@@ -163,81 +163,6 @@ Window {
                     anchors.centerIn: parent
                     text: "No Calamares config found at " + backend.configDir
                     color: win.danger; font.pixelSize: 13
-                }
-            }
-
-            // ── Filesystem ──────────────────────────────────────────────
-            Rectangle {
-                Layout.fillWidth: true
-                color: win.t.cardBg; border.color: win.t.cardBorder; border.width: 1; radius: 14
-                implicitHeight: 64
-                enabled: backend.configExists
-                RowLayout {
-                    anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; margins: 16 }
-                    ColumnLayout {
-                        spacing: 1
-                        Text { text: "FILESYSTEM"; color: win.t.accentA; font.pixelSize: 12; font.bold: true; font.letterSpacing: 1.4 }
-                        Text { text: "root partition · defaultFileSystemType"; color: win.t.subtext; font.pixelSize: 12 }
-                    }
-                    Item { Layout.fillWidth: true }
-                    ComboBox {
-                        id: fsCombo
-                        Layout.preferredWidth: 160
-                        model: backend.filesystems
-                        currentIndex: Math.max(0, backend.filesystems.indexOf(backend.filesystem))
-                        onActivated: backend.setFilesystem(currentText)
-
-                        // Fully themed so the field + popup match the dark/light palette;
-                        // the default Controls style renders a light field (white-on-white,
-                        // unreadable) since only the text was styled before.
-                        contentItem: Text {
-                            text: fsCombo.displayText
-                            color: win.t.desc; font.pixelSize: 15
-                            leftPadding: 12; rightPadding: 28
-                            verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight
-                        }
-                        indicator: Text {
-                            text: "▾"; color: win.t.subtext; font.pixelSize: 14
-                            x: fsCombo.width - width - 12
-                            y: (fsCombo.height - height) / 2
-                        }
-                        background: Rectangle {
-                            implicitHeight: 38; radius: 8
-                            color: win.t.bgBottom
-                            border.width: 1
-                            border.color: fsCombo.popup.visible ? win.t.accentA : win.t.cardBorder
-                        }
-                        delegate: ItemDelegate {
-                            id: fsDelegate
-                            width: fsCombo.width
-                            highlighted: fsCombo.highlightedIndex === index
-                            contentItem: Text {
-                                text: modelData
-                                color: fsDelegate.highlighted ? "#ffffff" : win.t.desc
-                                font.pixelSize: 15; leftPadding: 10
-                                verticalAlignment: Text.AlignVCenter
-                            }
-                            background: Rectangle {
-                                color: fsDelegate.highlighted ? win.t.accentA : "transparent"
-                            }
-                        }
-                        popup: Popup {
-                            y: fsCombo.height + 2
-                            width: fsCombo.width
-                            implicitHeight: Math.min(contentItem.implicitHeight, 280)
-                            padding: 1
-                            contentItem: ListView {
-                                clip: true
-                                implicitHeight: contentHeight
-                                model: fsCombo.popup.visible ? fsCombo.delegateModel : null
-                                currentIndex: fsCombo.highlightedIndex
-                            }
-                            background: Rectangle {
-                                radius: 8; color: win.t.cardBg
-                                border.color: win.t.cardBorder; border.width: 1
-                            }
-                        }
-                    }
                 }
             }
 

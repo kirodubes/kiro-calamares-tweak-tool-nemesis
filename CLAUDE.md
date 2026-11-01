@@ -39,5 +39,6 @@ build.sh's glob); runtime deps `pyside6`, `polkit`. Built into `kiro_repo` via t
 recipe's `build.sh` (build.sh auto-bumps pkgrel).
 
 ## Status
-v1 — encryption ↔ bootloader pairing. v2 backlog (filesystem, swap, kernel params,
-timezone, shell, groups, services, btrfs, presets, schema-driven UI) in the design doc.
+v1 — encryption ↔ bootloader pairing. v2 backlog (swap, kernel params, timezone, shell,
+groups, services, presets, schema-driven UI) in the design doc. No filesystem picker: one
+shipped and was removed 2026-11-01 because Calamares already offers that choice.
